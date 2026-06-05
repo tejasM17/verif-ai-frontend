@@ -356,7 +356,7 @@ export const UploadPanel: React.FC<UploadPanelProps> = ({ onUploadSuccess, onAna
                     {doc.type === 'github' && <Github className="h-5 w-5 text-green-400" />}
                     <div className="flex-grow">
                       <p className="text-sm font-medium text-white">
-                        {doc.type === 'github' ? doc.github_url : doc.file_name}
+                        {doc.type === 'github' ? doc.github_url : (doc as any).filename || (doc as any).file_name}
                       </p>
                       <p className="text-xs text-slate-400">
                         {doc.uploaded_at ? new Date(doc.uploaded_at).toLocaleDateString() : 'N/A'}

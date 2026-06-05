@@ -9,6 +9,8 @@ export interface User {
   avatar_url?: string;
   bio?: string;
   skills?: string[];
+  domain?: string;
+  location?: string;
   linkedin_url?: string;
   portfolio_url?: string;
   created_at?: string;
@@ -47,40 +49,44 @@ export interface HealthResponse {
 
 // Document types
 export interface Document {
-  document_id: string; // Renamed from 'id' to match backend
-  user_id: string; // Added to match backend
-  type: 'resume' | 'certificate' | 'github'; // Added 'github' type
-  file_name: string; // Renamed from 'file_name' to match backend
-  hash_sha256: string; // Added to match backend
-  status: 'pending' | 'processed' | 'analyzing' | 'done' | 'failed'; // Added 'analyzing', 'done'
-  uploaded_at: string; // Added to match backend
-  github_url?: string; // Added for github document type
+  document_id: string;
+  user_id: string;
+  type: 'resume' | 'certificate' | 'github';
+  filename?: string;
+  hash_sha256: string;
+  status: 'pending' | 'analyzing' | 'done' | 'failed';
+  uploaded_at: string;
+  github_url?: string;
 }
 
 export interface DocumentUploadResponse {
   success: boolean;
   message: string;
-  data: Document[]; // Changed to array of Document
+  data: Document[];
 }
 
 // Analysis & Trust Score
 export interface TrustScore {
-  score: number; // 0-100
-  level: 'low' | 'medium' | 'high' | 'excellent';
-  last_updated: string;
-  breakdown: {
-    resume_verification: number;
-    certificate_verification: number;
-    github_validation: number;
-  };
+  student_uid: string;
+  trust_score: number;
+  verdict: 'AUTHENTIC' | 'FLAGGED' | 'SUSPICIOUS' | 'FAKE' | 'verified' | 'likely_authentic' | 'suspicious' | 'flagged';
+  resume_score: number;
+  cert_score: number;
+  github_score: number;
+  flags: string[];
+  created_at: string;
 }
 
 export interface LogEntry {
-  id: string;
-  timestamp: string;
-  type: 'info' | 'progress' | 'warning' | 'success' | 'error';
-  message: string;
-  agent: 'resume' | 'certificate' | 'github';
+  type: 'thinking_token' | 'research_step_start' | 'research_step_complete' | 'analysis_complete' | 'error' | 'thinking';
+  agent: 'resume' | 'cert' | 'github' | 'cross_reference';
+  data?: any;
+  token?: string;
+  step?: string;
+  result?: string;
+  trust_score?: number;
+  verdict?: string;
+  timestamp: number;
 }
 
 export interface AnalysisStartResponse {
@@ -90,34 +96,27 @@ export interface AnalysisStartResponse {
 
 export interface AnalysisResponse {
   success: boolean;
-  message: string;
   data: {
-    analysis_id: string;
-    status: 'pending' | 'processing' | 'completed' | 'failed';
-    trust_score?: TrustScore;
+    verification: TrustScore;
+    agent_results: any[];
   };
-}
-
-export interface AgentStatus {
-  agent: 'resume' | 'certificate' | 'github';
-  status: 'pending' | 'processing' | 'completed' | 'failed';
-  progress: number; // 0-100
-  message: string;
 }
 
 // Public Profile for Discovery
 export interface PublicProfile {
-  id: string;
+  uid: string;
   display_name: string;
-  avatar_url?: string;
-  bio?: string;
+  domain: string;
   skills: string[];
-  trust_score: TrustScore;
+  trust_score: number;
+  verdict: string;
   is_public: boolean;
+  location?: string;
+  bio?: string;
+  avatar_url?: string;
+  github_url?: string;
   linkedin_url?: string;
   portfolio_url?: string;
-  github_url?: string;
-  created_at: string;
 }
 
 export interface DiscoverResponse {
@@ -128,11 +127,4 @@ export interface DiscoverResponse {
     page: number;
     limit: number;
   };
-}
-
-export interface ShortlistEntry {
-  recruiter_id: string;
-  student_id: string;
-  added_at: string;
-  notes?: string;
 }

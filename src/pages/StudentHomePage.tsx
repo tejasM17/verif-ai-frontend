@@ -6,65 +6,6 @@ import { Badge } from '../components/ui/Badge';
 import { jobsApi } from '../api/jobs';
 import toast from 'react-hot-toast';
 
-const MOCK_JOB_DATA = [
-  {
-    id: 'mock-1',
-    companyLogoInitials: 'G',
-    companyName: 'Google',
-    timeAgo: '2h ago',
-    jobTitle: 'Senior Frontend Engineer',
-    location: 'Bangalore, India',
-    jobType: 'Remote',
-    skills: ['React', 'TypeScript', 'Node.js'],
-    salaryRange: '₹40-60 LPA',
-    logoColor: 'bg-gradient-to-br from-emerald-400 to-emerald-600',
-    description: 'We are looking for a Senior Frontend Engineer to join our team.',
-    created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-  },
-  {
-    id: 'mock-2',
-    companyLogoInitials: 'FK',
-    companyName: 'Flipkart',
-    timeAgo: '5h ago',
-    jobTitle: 'Data Analyst Intern',
-    location: 'Bangalore, India',
-    jobType: 'Hybrid',
-    skills: ['Python', 'SQL', 'Pandas'],
-    salaryRange: '₹8-12 LPA',
-    logoColor: 'bg-gradient-to-br from-amber-400 to-amber-600',
-    description: 'Join Flipkart as a Data Analyst Intern.',
-    created_at: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
-  },
-  {
-    id: 'mock-3',
-    companyLogoInitials: 'RP',
-    companyName: 'Razorpay',
-    timeAgo: '1d ago',
-    jobTitle: 'Backend Developer',
-    location: 'Remote',
-    jobType: 'Full-time',
-    skills: ['FastAPI', 'PostgreSQL', 'Docker'],
-    salaryRange: '₹25-35 LPA',
-    logoColor: 'bg-gradient-to-br from-blue-500 to-blue-700',
-    description: 'Build scalable payment infrastructure.',
-    created_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-  },
-  {
-    id: 'mock-4',
-    companyLogoInitials: 'SW',
-    companyName: 'Swiggy',
-    timeAgo: '2d ago',
-    jobTitle: 'ML Engineer',
-    location: 'Bangalore, India',
-    jobType: 'On-site',
-    skills: ['Python', 'TensorFlow', 'MLflow'],
-    salaryRange: '₹30-45 LPA',
-    logoColor: 'bg-gradient-to-br from-orange-400 to-orange-600',
-    description: 'Build ML models for food delivery optimization.',
-    created_at: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString(),
-  },
-];
-
 const JobCard: React.FC<{
   companyLogoInitials: string;
   companyName: string;
@@ -173,6 +114,7 @@ const StudentHomePage: React.FC = () => {
         }
       } catch (error) {
         console.error('Failed to load jobs:', error);
+        setJobs([]);
       } finally {
         setIsLoading(false);
       }
@@ -186,16 +128,13 @@ const StudentHomePage: React.FC = () => {
       await jobsApi.applyForJob(jobId);
       toast.success('Application submitted successfully!');
     } catch (error: any) {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      toast.success('Application submitted successfully!');
+      toast.error(error.message || 'Failed to submit application');
     } finally {
       setApplyingJobId(null);
     }
   };
 
-  const displayJobs = jobs.length > 0 ? jobs : MOCK_JOB_DATA;
-
-  const filterJobs = (jobs: typeof displayJobs) => {
+  const filterJobs = (jobs: any[]) => {
     return jobs.filter((job: any) => {
       const matchesFilter = !activeFilter || job.jobType === activeFilter;
       const matchesSearch = !searchQuery ||
@@ -206,7 +145,7 @@ const StudentHomePage: React.FC = () => {
     });
   };
 
-  const filteredJobs = filterJobs(displayJobs);
+  const filteredJobs = filterJobs(jobs);
 
   const handleFilterClick = (filter: string) => {
     setActiveFilter(prev => prev === filter ? null : filter);
@@ -304,7 +243,7 @@ const StudentHomePage: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {filteredJobs.map((job: any, index: number) => {
-              const transformedJob = jobs.length > 0 ? transformJob(job) : job;
+              const transformedJob = transformJob(job);
               return (
                 <JobCard
                   key={job.id || index}

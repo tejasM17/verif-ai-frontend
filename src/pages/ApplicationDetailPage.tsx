@@ -38,35 +38,39 @@ const ApplicationDetailPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('profile');
   const [application, setApplication] = useState<any>(location.state?.application || null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
+  const [analysisResult, setAnalysisResult] = useState<any>(null);
   const [hasAnalyzed, setHasAnalyzed] = useState(false);
+
+  useEffect(() => {
+    const fetchResult = async () => {
+      if (application?.student?.uid) {
+        try {
+          const response = await analysisApi.getResult(application.student.uid);
+          if (response.success) {
+            setAnalysisResult(response.data);
+            setHasAnalyzed(true);
+          }
+        } catch (error) {
+          console.error('Failed to fetch analysis result:', error);
+        }
+      }
+    };
+    fetchResult();
+  }, [application]);
 
   const handleAnalyze = async () => {
     setIsAnalyzing(true);
-    setAnalysisResult(null);
     try {
-      // Simulate AI analysis - backend will provide actual analysis
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      setAnalysisResult({
-        overall_score: 78,
-        summary: "Strong technical background with verified certifications. Demonstrates expertise in frontend development with good problem-solving skills. GitHub activity shows consistent contributions to personal and open-source projects.",
-        strengths: [
-          "Verified backend development skills through certificates",
-          "Active GitHub profile with multiple project contributions",
-          "Strong TypeScript and React expertise matching job requirements",
-          "Good communication skills as evidenced by project documentation"
-        ],
-        concerns: [
-          "Limited exposure to large-scale distributed systems",
-          "No visible experience with cloud infrastructure (AWS/GCP)",
-          "Junior level position only - may require mentorship"
-        ],
-        recommendation: "Recommended for interview. Technical skills align well with requirements. Consider for mid-level role or internship position."
-      });
-      setHasAnalyzed(true);
-      toast.success('Analysis complete!');
+      const response = await analysisApi.getResult(application.student.uid);
+      if (response.success) {
+        setAnalysisResult(response.data);
+        setHasAnalyzed(true);
+        toast.success('Analysis result retrieved!');
+      } else {
+        toast.error('No analysis result found for this student.');
+      }
     } catch (error: any) {
-      toast.error(error.message || 'Analysis failed');
+      toast.error(error.message || 'Failed to fetch analysis');
     } finally {
       setIsAnalyzing(false);
     }

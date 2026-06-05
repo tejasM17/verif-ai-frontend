@@ -438,7 +438,7 @@ VITE_API_BASE_URL=https://verif-ai-backend.onrender.com
 - [x] "Analyze" button → `POST /api/v1/analysis/start` → get `websocket_url`
 - [x] `useAnalysisStream.ts` WebSocket hook
 - [x] `ResearchLogFeed.tsx` — live scrolling terminal feed
-- [ ] `AgentStatusBar.tsx` — resume/cert/github agent progress indicators
+- [x] `AgentStatusBar.tsx` — resume/cert/github agent progress indicators
 - [x] `TrustScoreCard.tsx` — appears on `analysis_complete` event
 
 ### Phase 3: Public Profile + Recruiter
@@ -451,6 +451,7 @@ VITE_API_BASE_URL=https://verif-ai-backend.onrender.com
 
 ### Phase 4: Polish + Deploy
 - [x] `LandingPage.tsx` — hero with product explanation
+- [x] Remove all fake data and connect backend endpoints
 - [ ] Full mobile responsive pass
 - [ ] Loading skeletons everywhere
 - [ ] Error boundaries

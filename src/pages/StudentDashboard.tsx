@@ -89,13 +89,12 @@ const StudentDashboard: React.FC = () => {
     const loadInitialData = async () => {
       setIsLoadingTrustScore(true);
       try {
-        const scoreResponse = await analysisApi.getTrustScore();
+        const scoreResponse = await analysisApi.getMyResult();
         if (scoreResponse.success) {
-          setTrustScore(scoreResponse.data);
+          setTrustScore(scoreResponse.data.verification);
         }
       } catch (error) {
         console.error('Failed to load trust score:', error);
-        // It's ok if trust score doesn't exist yet
       } finally {
         setIsLoadingTrustScore(false);
       }
@@ -104,69 +103,19 @@ const StudentDashboard: React.FC = () => {
     loadInitialData();
   }, [checkReadiness]);
 
-  const handleStartAnalysis = async () => {
-    setIsStartingAnalysis(true);
-    clearLogs();
-    setTrustScore(null); // Clear previous trust score
-
-    try {
-      const allDocsResponse = await documentsApi.getAll();
-      if (!allDocsResponse.success) {
-        throw new Error(allDocsResponse.message || 'Failed to fetch uploaded documents.');
-      }
-
-      const uploadedDocs = allDocsResponse.data;
-      const resumeDoc = uploadedDocs.find(doc => doc.type === 'resume' && doc.status === 'done');
-      const certificateDocs = uploadedDocs.filter(doc => doc.type === 'certificate' && doc.status === 'done');
-      const githubDoc = uploadedDocs.find(doc => doc.type === 'github' && doc.status === 'done');
-
-      if (!resumeDoc || certificateDocs.length === 0 || !githubDoc) {
-        toast.error('Please ensure all required documents (resume, certificates, GitHub URL) are uploaded and processed.');
-        setIsStartingAnalysis(false);
-        return;
-      }
-
-      const cert_doc_ids = certificateDocs.map(doc => doc.document_id);
-      const resume_document_id = resumeDoc.document_id;
-      const github_url = githubDoc.github_url || '';
-
-      const response = await analysisApi.start(resume_document_id, cert_doc_ids, github_url);
-      if (response.success) {
-        setJobId(response.data.job_id);
-        setWebsocketUrl(response.data.websocket_url);
-        toast.success('Analysis started! Check the log below.');
-      } else {
-        throw new Error(response.message || 'Failed to start analysis');
-      }
-    } catch (error: any) {
-      let errorMsg = error.message;
-      if (!errorMsg && error.detail) {
-        if (Array.isArray(error.detail)) {
-          errorMsg = error.detail.map((e: any) => e.msg || JSON.stringify(e)).join(', ');
-        } else if (typeof error.detail === 'string') {
-          errorMsg = error.detail;
-        }
-      }
-      toast.error(errorMsg || error.error || 'Failed to start analysis');
-    } finally {
-      setIsStartingAnalysis(false);
-    }
-  };
-
   useEffect(() => {
     // When analysis completes, fetch the new trust score
     if (logs.some(log => log.type === 'analysis_complete')) {
       const fetchFinalTrustScore = async () => {
         setIsLoadingTrustScore(true);
         try {
-          const response = await analysisApi.getTrustScore();
+          const response = await analysisApi.getMyResult();
           if (response.success) {
-            setTrustScore(response.data);
+            setTrustScore(response.data.verification);
             toast.success('Analysis complete! Trust score updated.');
           }
         } catch (error) {
           console.error('Failed to fetch final trust score:', error);
-          toast.error('Could not fetch final trust score.');
         } finally {
           setIsLoadingTrustScore(false);
         }
