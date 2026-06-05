@@ -1,9 +1,9 @@
 import React from 'react';
-import { Bell, ChevronDown } from 'lucide-react';
 import SearchBar from '../components/student/SearchBar';
 import FiltersRow from '../components/student/FiltersRow';
 import JobCard from '../components/student/JobCard';
 import ProfileSidebar from '../components/student/ProfileSidebar';
+import TopNav from '../components/student/TopNav';
 
 const MOCK_JOB_DATA = [
   {
@@ -15,9 +15,10 @@ const MOCK_JOB_DATA = [
     jobType: 'Remote',
     skills: ['React', 'TypeScript', 'Node.js'],
     salaryRange: '₹40-60 LPA',
+    logoColor: 'bg-emerald-500'
   },
   {
-    companyLogoInitials: 'F',
+    companyLogoInitials: 'FK',
     companyName: 'Flipkart',
     timeAgo: '5h ago',
     jobTitle: 'Data Analyst Intern',
@@ -25,19 +26,21 @@ const MOCK_JOB_DATA = [
     jobType: 'Hybrid',
     skills: ['Python', 'SQL', 'Pandas'],
     salaryRange: '₹8-12 LPA',
+    logoColor: 'bg-amber-500'
   },
   {
-    companyLogoInitials: 'R',
+    companyLogoInitials: 'RP',
     companyName: 'Razorpay',
     timeAgo: '1d ago',
     jobTitle: 'Backend Developer',
     location: 'Remote',
-    jobType: 'Full-time', // Assuming full-time based on context
+    jobType: 'Full-time',
     skills: ['FastAPI', 'PostgreSQL', 'Docker'],
     salaryRange: '₹25-35 LPA',
+    logoColor: 'bg-blue-600'
   },
   {
-    companyLogoInitials: 'S',
+    companyLogoInitials: 'SW',
     companyName: 'Swiggy',
     timeAgo: '2d ago',
     jobTitle: 'ML Engineer',
@@ -45,52 +48,34 @@ const MOCK_JOB_DATA = [
     jobType: 'On-site',
     skills: ['Python', 'TensorFlow', 'MLflow'],
     salaryRange: '₹30-45 LPA',
+    logoColor: 'bg-orange-500'
   },
 ];
 
 const StudentHomePage: React.FC = () => {
   const handleSearch = (query: string) => {
     console.log('Searching for:', query);
-    // In a real app, this would trigger a data fetch
   };
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-50">
-      {/* COMPONENT 1: TOP NAV BAR */}
-      <nav className="sticky top-0 z-50 w-full bg-white/70 backdrop-blur-xl border-b border-slate-200 px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <h1 className="text-xl font-bold text-indigo-600">VERIF-AI</h1>
-          <span className="text-sm text-slate-400">Student Portal</span>
-        </div>
-        <div className="flex items-center gap-4">
-          <div className="relative">
-            <Bell className="w-6 h-6 text-slate-500 cursor-pointer" />
-            <span className="absolute -top-1 -right-1 flex h-3 w-3 items-center justify-center rounded-full bg-red-500 text-xs text-white">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-red-600"></span>
-            </span>
-          </div>
-          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white font-medium">
-            PS
-          </div>
-          <ChevronDown className="w-4 h-4 text-slate-500 cursor-pointer" />
-        </div>
-      </nav>
+      <TopNav />
 
-      <div className="flex flex-grow gap-6 p-6">
-        {/* LEFT COLUMN */}
-        <div className="flex-1 max-w-none flex flex-col gap-6">
-          {/* COMPONENT 2: SEARCH BAR */}
+      <div className="flex flex-grow gap-8 p-6 max-w-7xl mx-auto w-full">
+        {/* LEFT COLUMN - Main Content */}
+        <div className="flex-1 min-w-0 flex flex-col gap-6 pt-2">
+          
           <SearchBar onSearch={handleSearch} />
+          
+          <div className="overflow-hidden">
+            <FiltersRow />
+          </div>
 
-          {/* COMPONENT 3: FILTERS ROW */}
-          <FiltersRow />
-
-          {/* COMPONENT 4: JOB LISTINGS AREA */}
-          <div className="mt-6">
-            <h2 className="text-lg font-semibold text-slate-800 mb-2">Recommended for You</h2>
-            <p className="text-sm text-slate-400 mb-4">Based on your verified skills</p>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div className="mt-4">
+            <h2 className="text-xl font-bold text-slate-800 mb-1">Recommended for You</h2>
+            <p className="text-sm text-slate-500 mb-5">Based on your verified skills</p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               {MOCK_JOB_DATA.map((job, index) => (
                 <JobCard key={index} {...job} animationDelay={`${index * 100}ms`} />
               ))}
@@ -98,8 +83,10 @@ const StudentHomePage: React.FC = () => {
           </div>
         </div>
 
-        {/* RIGHT COLUMN */}
-        <ProfileSidebar />
+        {/* RIGHT COLUMN - Profile Sidebar */}
+        <div className="hidden lg:block pt-2">
+          <ProfileSidebar />
+        </div>
       </div>
     </div>
   );

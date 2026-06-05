@@ -1,32 +1,46 @@
 import React, { useState } from 'react';
-import { Bell, GraduationCap, Briefcase, Globe, Linkedin, Camera, CheckCircle2 } from 'lucide-react';
-import UploadRow from './UploadRow'; // Assuming UploadRow is in the same directory or correctly imported
+import { Camera, Briefcase, GraduationCap, Globe, Linkedin, ExternalLink } from 'lucide-react';
+import UploadRow from './UploadRow';
+import { useAuthStore } from '../../store/authStore';
 
 const ProfileSidebar: React.FC = () => {
   const [isHoveringProfile, setIsHoveringProfile] = useState(false);
+  const { user } = useAuthStore();
+
+  const getInitials = () => {
+    if (user?.display_name) {
+      return user.display_name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2);
+    }
+    if (user?.email) {
+      return user.email.slice(0, 2).toUpperCase();
+    }
+    return 'U';
+  };
 
   return (
     <div className="w-80 flex-shrink-0 sticky top-6">
-      <div className="glass-card rounded-3xl p-5">
+      <div className="glass-card rounded-3xl p-5 border border-slate-200 bg-white">
         {/* SECTION A — Profile Header */}
         <div className="text-center">
           <div
-            className="relative w-20 h-20 mx-auto rounded-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-indigo-400 to-purple-500 profile-ring-hover"
+            className="relative w-20 h-20 mx-auto rounded-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-600 shadow-md profile-ring-hover cursor-pointer transition-transform hover:scale-105"
             onMouseEnter={() => setIsHoveringProfile(true)}
             onMouseLeave={() => setIsHoveringProfile(false)}
           >
-            <span className="text-2xl font-bold text-white">PS</span>
+            <span className="text-2xl font-bold text-white tracking-wide">{getInitials()}</span>
             <div className="absolute bottom-1 right-1 w-4 h-4 bg-emerald-400 rounded-full border-2 border-white"></div>
             {isHoveringProfile && (
-              <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+              <div className="absolute inset-0 bg-black/40 flex items-center justify-center backdrop-blur-[2px] transition-all">
                 <Camera className="w-6 h-6 text-white" />
               </div>
             )}
           </div>
-          <h3 className="text-lg font-semibold text-slate-900 mt-3">Priya Sharma</h3>
-          <p className="text-xs text-slate-500 mt-0.5">B.Tech CSE • NITK 2025</p>
-          <div className="inline-flex items-center gap-1 mt-2 bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs px-3 py-1 rounded-full">
-            <span className="w-2 h-2 bg-emerald-500 rounded-full"></span>
+          <h3 className="text-lg font-bold text-slate-800 mt-3 truncate px-2">
+            {user?.display_name || user?.email?.split('@')[0] || 'Student User'}
+          </h3>
+          <p className="text-xs text-slate-500 mt-0.5 truncate px-2">{user?.email || 'Student'}</p>
+          <div className="inline-flex items-center gap-1.5 mt-2.5 bg-emerald-50 text-emerald-700 border border-emerald-200/60 text-xs font-medium px-3 py-1 rounded-full shadow-sm">
+            <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
             <span>Open to Work</span>
           </div>
         </div>
