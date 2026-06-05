@@ -58,14 +58,14 @@ const StudentCard: React.FC<StudentCardProps> = ({ student, onView, onShortlist 
               </div>
             )}
             <div className="flex-grow">
-              <h3 className="font-bold text-white">{student.display_name}</h3>
-              <p className="text-xs text-slate-400">
+              <h3 className="font-bold text-gray-900">{student.display_name}</h3>
+              <p className="text-xs text-gray-500">
                 Trust Score: {student.trust_score.score}
               </p>
             </div>
           </div>
           <div className="text-right">
-            <div className="text-2xl font-bold text-blue-400">
+            <div className="text-2xl font-bold text-blue-500">
               {student.trust_score.score}
             </div>
             <Badge variant={student.trust_score.level === 'excellent' ? 'success' : 'info'} size="sm">
@@ -74,7 +74,7 @@ const StudentCard: React.FC<StudentCardProps> = ({ student, onView, onShortlist 
           </div>
         </div>
 
-        {student.bio && <p className="text-sm text-slate-300">{student.bio}</p>}
+        {student.bio && <p className="text-sm text-gray-500">{student.bio}</p>}
 
         {student.skills && student.skills.length > 0 && (
           <div className="flex flex-wrap gap-1">
@@ -169,8 +169,8 @@ const RecruiterDashboard: React.FC = () => {
       <div className="space-y-8">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold text-white">Discover Talent</h1>
-          <p className="text-slate-400 mt-2">
+          <h1 className="text-3xl font-bold text-gray-900">Discover Talent</h1>
+          <p className="text-gray-500 mt-2">
             Find and shortlist verified students for your opportunities
           </p>
         </div>
@@ -231,7 +231,7 @@ const RecruiterDashboard: React.FC = () => {
                     }
                   />
                   <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-1.5">Sort By</label>
+                    <label className="block text-sm font-medium text-gray-600 mb-1.5">Sort By</label>
                     <select
                       value={filters.sortBy || 'relevance'}
                       onChange={(e) =>
@@ -240,7 +240,7 @@ const RecruiterDashboard: React.FC = () => {
                           sortBy: e.target.value as 'trust_score' | 'recent' | 'relevance',
                         }))
                       }
-                      className="w-full px-3 py-2 rounded-lg bg-slate-700/30 border border-slate-600/50 text-white focus:border-blue-500 focus:outline-none"
+                      className="w-full px-3 py-2 rounded-lg bg-gray-50 border border-gray-200 text-gray-700 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400/20"
                     >
                       <option value="relevance">Relevance</option>
                       <option value="trust_score">Trust Score (High to Low)</option>
@@ -256,7 +256,7 @@ const RecruiterDashboard: React.FC = () => {
         {/* Students Grid */}
         {isLoading ? (
           <div className="flex items-center justify-center min-h-96">
-            <div className="text-slate-400">Loading students...</div>
+            <div className="text-gray-500">Loading students...</div>
           </div>
         ) : students.length > 0 ? (
           <>
@@ -286,7 +286,7 @@ const RecruiterDashboard: React.FC = () => {
               >
                 Previous
               </Button>
-              <span className="text-slate-400">Page {page}</span>
+              <span className="text-gray-500">Page {page}</span>
               <Button
                 variant="ghost"
                 onClick={() => {
@@ -305,9 +305,9 @@ const RecruiterDashboard: React.FC = () => {
         ) : (
           <Card bordered>
             <CardBody className="text-center py-12">
-              <Search className="h-12 w-12 text-slate-500 mx-auto mb-3" />
-              <p className="text-slate-400">No students found matching your criteria</p>
-              <p className="text-slate-500 text-sm mt-2">Try adjusting your search filters</p>
+              <Search className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+              <p className="text-gray-500">No students found matching your criteria</p>
+              <p className="text-gray-400 text-sm mt-2">Try adjusting your search filters</p>
             </CardBody>
           </Card>
         )}

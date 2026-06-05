@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Github, Linkedin, Globe, Mail } from 'lucide-react';
+import { ArrowLeft, Github, Linkedin, Globe, Mail, ExternalLink } from 'lucide-react';
 import Layout from '../components/Layout';
 import { TrustScoreCard } from '../components/dashboard/TrustScoreCard';
 import { Card, CardBody, CardHeader } from '../components/ui/Card';
@@ -61,11 +61,27 @@ const PublicProfilePage: React.FC = () => {
     }
   };
 
+  const handleSendMessage = () => {
+    toast.success('Message feature coming soon!');
+  };
+
+  const handleOpenGitHub = () => {
+    if (profile?.github_url) {
+      window.open(profile.github_url, '_blank');
+    } else {
+      toast.error('GitHub URL not available');
+    }
+  };
+
+  const handleOpenLinkedIn = () => {
+    toast.success('LinkedIn integration coming soon!');
+  };
+
   if (isLoading) {
     return (
       <Layout>
         <div className="flex items-center justify-center min-h-96">
-          <div className="text-slate-400">Loading profile...</div>
+          <div className="text-gray-500">Loading profile...</div>
         </div>
       </Layout>
     );
@@ -75,7 +91,7 @@ const PublicProfilePage: React.FC = () => {
     return (
       <Layout>
         <div className="flex flex-col items-center justify-center min-h-96 gap-4">
-          <div className="text-slate-400">Profile not found</div>
+          <div className="text-gray-500">Profile not found</div>
           <Button onClick={() => navigate('/discover')}>Back to Discovery</Button>
         </div>
       </Layout>
@@ -88,7 +104,7 @@ const PublicProfilePage: React.FC = () => {
         {/* Back Button */}
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors"
+          className="flex items-center gap-2 text-blue-500 hover:text-blue-600 transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
           Go Back
@@ -118,8 +134,8 @@ const PublicProfilePage: React.FC = () => {
                   <div className="flex-grow">
                     <div className="flex items-start justify-between">
                       <div>
-                        <h1 className="text-2xl font-bold text-white">{profile.display_name}</h1>
-                        <p className="text-slate-400 mt-1">Verified Student</p>
+                        <h1 className="text-2xl font-bold text-gray-900">{profile.display_name}</h1>
+                        <p className="text-gray-500 mt-1">Verified Student</p>
                       </div>
                       <Button
                         variant={isShortlisted ? 'secondary' : 'primary'}
@@ -131,7 +147,7 @@ const PublicProfilePage: React.FC = () => {
                     </div>
 
                     {profile.bio && (
-                      <p className="text-slate-300 mt-4 text-sm">{profile.bio}</p>
+                      <p className="text-gray-600 mt-4 text-sm">{profile.bio}</p>
                     )}
                   </div>
                 </div>
@@ -149,7 +165,7 @@ const PublicProfilePage: React.FC = () => {
         {profile.skills && profile.skills.length > 0 && (
           <Card bordered>
             <CardHeader>
-              <h2 className="text-lg font-bold text-white">Skills & Expertise</h2>
+              <h2 className="text-lg font-bold text-gray-900">Skills & Expertise</h2>
             </CardHeader>
             <CardBody>
               <div className="flex flex-wrap gap-2">
@@ -166,19 +182,20 @@ const PublicProfilePage: React.FC = () => {
         {/* Contact Section */}
         <Card bordered>
           <CardHeader>
-            <h2 className="text-lg font-bold text-white">Connect</h2>
+            <h2 className="text-lg font-bold text-gray-900">Connect</h2>
           </CardHeader>
           <CardBody>
             <div className="flex gap-3 flex-wrap">
-              <Button variant="ghost" className="flex items-center gap-2">
+              <Button variant="ghost" onClick={handleSendMessage} className="flex items-center gap-2">
                 <Mail className="h-4 w-4" />
                 Send Message
               </Button>
-              <Button variant="ghost" className="flex items-center gap-2">
+              <Button variant="ghost" onClick={handleOpenGitHub} className="flex items-center gap-2">
                 <Github className="h-4 w-4" />
                 GitHub
+                {profile?.github_url && <ExternalLink className="h-3 w-3 ml-1" />}
               </Button>
-              <Button variant="ghost" className="flex items-center gap-2">
+              <Button variant="ghost" onClick={handleOpenLinkedIn} className="flex items-center gap-2">
                 <Linkedin className="h-4 w-4" />
                 LinkedIn
               </Button>

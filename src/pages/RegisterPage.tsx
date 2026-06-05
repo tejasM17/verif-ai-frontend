@@ -17,32 +17,32 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0c] text-white flex items-center justify-center p-4 relative overflow-hidden">
-      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/20 blur-[120px] rounded-full" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-emerald-600/10 blur-[120px] rounded-full" />
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 text-gray-900 flex items-center justify-center p-4 relative overflow-hidden">
+      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-500/10 blur-[120px] rounded-full" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-emerald-500/10 blur-[120px] rounded-full" />
 
       <div className="w-full max-w-md z-10">
         <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center p-3 bg-blue-600/10 rounded-2xl mb-4 border border-blue-500/20">
+          <div className="inline-flex items-center justify-center p-3 bg-blue-50 rounded-2xl mb-4 border border-blue-100">
             <ShieldCheck className="w-8 h-8 text-blue-500" />
           </div>
-          <h1 className="text-4xl font-bold tracking-tight mb-2 bg-gradient-to-b from-white to-gray-400 bg-clip-text text-transparent">
+          <h1 className="text-4xl font-bold tracking-tight mb-2 text-gray-900">
             Join VERIF-AI
           </h1>
-          <p className="text-gray-400 text-sm">Create your verified academic profile</p>
+          <p className="text-gray-500 text-sm">Create your verified academic profile</p>
         </div>
 
-        <div className="bg-[#16161a]/80 backdrop-blur-xl border border-white/10 p-8 rounded-3xl shadow-2xl">
+        <div className="bg-white/80 backdrop-blur-xl border border-gray-200/50 p-8 rounded-3xl shadow-xl">
           <form onSubmit={handleRegister} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-2">Full Name</label>
+              <label className="block text-sm font-medium text-gray-600 mb-2">Full Name</label>
               <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
-                <input 
-                  type="text" 
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type="text"
                   value={formData.display_name}
                   onChange={(e) => setFormData({...formData, display_name: e.target.value})}
-                  className="w-full pl-10 pr-4 py-3 bg-[#0f0f12] border border-white/5 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-white placeholder-gray-600"
+                  className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-300 outline-none transition-all text-gray-900 placeholder-gray-400 hover:border-gray-300"
                   placeholder="John Doe"
                   required
                 />
@@ -50,14 +50,14 @@ const RegisterPage = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-2">Email Address</label>
+              <label className="block text-sm font-medium text-gray-600 mb-2">Email Address</label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
-                <input 
-                  type="email" 
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type="email"
                   value={formData.email}
                   onChange={(e) => setFormData({...formData, email: e.target.value})}
-                  className="w-full pl-10 pr-4 py-3 bg-[#0f0f12] border border-white/5 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-white placeholder-gray-600"
+                  className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-300 outline-none transition-all text-gray-900 placeholder-gray-400 hover:border-gray-300"
                   placeholder="name@university.edu"
                   required
                 />
@@ -65,14 +65,14 @@ const RegisterPage = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-2">Password</label>
+              <label className="block text-sm font-medium text-gray-600 mb-2">Password</label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
-                <input 
-                  type="password" 
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type="password"
                   value={formData.password}
                   onChange={(e) => setFormData({...formData, password: e.target.value})}
-                  className="w-full pl-10 pr-4 py-3 bg-[#0f0f12] border border-white/5 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-white placeholder-gray-600"
+                  className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-300 outline-none transition-all text-gray-900 placeholder-gray-400 hover:border-gray-300"
                   placeholder="••••••••"
                   required
                 />
@@ -80,20 +80,20 @@ const RegisterPage = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-2">I am a...</label>
+              <label className="block text-sm font-medium text-gray-600 mb-2">I am a...</label>
               <div className="grid grid-cols-2 gap-4">
-                <button 
+                <button
                   type="button"
                   onClick={() => setFormData({...formData, role: 'student'})}
-                  className={`flex items-center justify-center gap-2 p-3 rounded-xl border transition-all ${formData.role === 'student' ? 'bg-blue-600/20 border-blue-500 text-white' : 'bg-[#0f0f12] border-white/5 text-gray-500 hover:border-white/20'}`}
+                  className={`flex items-center justify-center gap-2 p-3 rounded-xl border transition-all ${formData.role === 'student' ? 'bg-blue-50 border-blue-300 text-blue-600' : 'bg-gray-50 border-gray-200 text-gray-500 hover:border-gray-300'}`}
                 >
                   <GraduationCap className="w-4 h-4" />
                   Student
                 </button>
-                <button 
+                <button
                   type="button"
                   onClick={() => setFormData({...formData, role: 'recruiter'})}
-                  className={`flex items-center justify-center gap-2 p-3 rounded-xl border transition-all ${formData.role === 'recruiter' ? 'bg-blue-600/20 border-blue-500 text-white' : 'bg-[#0f0f12] border-white/5 text-gray-500 hover:border-white/20'}`}
+                  className={`flex items-center justify-center gap-2 p-3 rounded-xl border transition-all ${formData.role === 'recruiter' ? 'bg-blue-50 border-blue-300 text-blue-600' : 'bg-gray-50 border-gray-200 text-gray-500 hover:border-gray-300'}`}
                 >
                   <Briefcase className="w-4 h-4" />
                   Recruiter
@@ -102,15 +102,15 @@ const RegisterPage = () => {
             </div>
 
             {authError && (
-              <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-400 text-xs rounded-lg text-center">
+              <div className="p-3 bg-red-50 border border-red-100 text-red-600 text-xs rounded-lg text-center">
                 {authError}
               </div>
             )}
 
-            <button 
+            <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2 group disabled:opacity-50"
+              className="w-full py-3 px-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2 group disabled:opacity-50 shadow-lg shadow-blue-500/25"
             >
               {loading ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -122,10 +122,10 @@ const RegisterPage = () => {
               )}
             </button>
           </form>
-          
+
           <div className="mt-6 text-center">
             <p className="text-gray-500 text-xs">
-              Already have an account? <a href="/login" className="text-blue-400 hover:text-blue-300 font-medium">Sign in</a>
+              Already have an account? <a href="/login" className="text-blue-500 hover:text-blue-600 font-medium">Sign in</a>
             </p>
           </div>
         </div>

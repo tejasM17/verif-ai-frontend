@@ -9,6 +9,8 @@ export interface User {
   avatar_url?: string;
   bio?: string;
   skills?: string[];
+  linkedin_url?: string;
+  portfolio_url?: string;
   created_at?: string;
   updated_at?: string;
 }
@@ -112,6 +114,9 @@ export interface PublicProfile {
   skills: string[];
   trust_score: TrustScore;
   is_public: boolean;
+  linkedin_url?: string;
+  portfolio_url?: string;
+  github_url?: string;
   created_at: string;
 }
 

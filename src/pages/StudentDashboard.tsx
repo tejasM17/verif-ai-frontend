@@ -1,14 +1,16 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Link2, Linkedin, Globe, Plus, X } from 'lucide-react';
 import Layout from '../components/Layout';
 import { UploadPanel } from '../components/dashboard/UploadPanel';
 import { TrustScoreCard } from '../components/dashboard/TrustScoreCard';
 import { ResearchLogFeed } from '../components/dashboard/ResearchLogFeed';
 import { Button } from '../components/ui/Button';
 import { Card, CardBody, CardHeader } from '../components/ui/Card';
+import { Input } from '../components/ui/Input';
 import { useAnalysisStream } from '../hooks/useAnalysisStream';
 import { analysisApi } from '../api/analysis';
-import { documentsApi } from '../api/documents'; // Import documentsApi
+import { documentsApi } from '../api/documents';
+import { profileApi } from '../api/profile';
 import { TrustScore, Document } from '../types';
 import toast from 'react-hot-toast';
 
@@ -20,6 +22,10 @@ const StudentDashboard: React.FC = () => {
   const [isStartingAnalysis, setIsStartingAnalysis] = useState(false);
   const [isAnalysisReady, setIsAnalysisReady] = useState(false);
   const [analysisReadiness, setAnalysisReadiness] = useState<{ has_resume: boolean; has_certificate: boolean; has_github: boolean; is_ready: boolean; missing: string[] } | null>(null);
+  const [linkedinUrl, setLinkedinUrl] = useState('');
+  const [portfolioUrl, setPortfolioUrl] = useState('');
+  const [isSavingLinks, setIsSavingLinks] = useState(false);
+  const [socialLinks, setSocialLinks] = useState<{ linkedin?: string; portfolio?: string }>({});
 
   const { logs, isConnected, isLoading, error, agentStatuses, clearLogs } =
     useAnalysisStream(websocketUrl);
@@ -36,6 +42,47 @@ const StudentDashboard: React.FC = () => {
       toast.error('Failed to load analysis readiness status.');
     }
   }, []);
+
+  // Load social links on mount
+  useEffect(() => {
+    const loadSocialLinks = async () => {
+      try {
+        const response = await profileApi.getMe();
+        if (response.success) {
+          setSocialLinks({
+            linkedin: response.data.linkedin_url,
+            portfolio: response.data.portfolio_url,
+          });
+          setLinkedinUrl(response.data.linkedin_url || '');
+          setPortfolioUrl(response.data.portfolio_url || '');
+        }
+      } catch (error) {
+        console.error('Failed to load social links:', error);
+      }
+    };
+    loadSocialLinks();
+  }, []);
+
+  const handleSaveLinks = async () => {
+    setIsSavingLinks(true);
+    try {
+      const response = await profileApi.update({
+        linkedin_url: linkedinUrl || undefined,
+        portfolio_url: portfolioUrl || undefined,
+      });
+      if (response.success) {
+        setSocialLinks({
+          linkedin: linkedinUrl || undefined,
+          portfolio: portfolioUrl || undefined,
+        });
+        toast.success('Links updated successfully!');
+      }
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to update links');
+    } finally {
+      setIsSavingLinks(false);
+    }
+  };
 
   // Load trust score and initial readiness on mount
   useEffect(() => {
@@ -137,8 +184,8 @@ const StudentDashboard: React.FC = () => {
       <div className="space-y-8">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold text-white">Student Dashboard</h1>
-          <p className="text-slate-400 mt-2">
+          <h1 className="text-3xl font-bold text-gray-900">Student Dashboard</h1>
+          <p className="text-gray-500 mt-2">
             Upload your documents and verify your skills with AI
           </p>
         </div>
@@ -150,7 +197,7 @@ const StudentDashboard: React.FC = () => {
             {/* Upload Section */}
             <Card bordered>
               <CardHeader>
-                <h2 className="text-lg font-bold text-white">Upload Documents</h2>
+                <h2 className="text-lg font-bold text-gray-900">Upload Documents</h2>
               </CardHeader>
               <CardBody>
                 <UploadPanel
@@ -159,26 +206,47 @@ const StudentDashboard: React.FC = () => {
               </CardBody>
             </Card>
 
-            {/* Start Analysis Button */}
+            {/* Social Links Section */}
             <Card bordered>
+              <CardHeader>
+                <h2 className="text-lg font-bold text-gray-900">Social Links</h2>
+              </CardHeader>
               <CardBody>
-                <div className="flex items-center justify-between">
+                <div className="space-y-4">
                   <div>
-                    <h3 className="text-sm font-bold text-white">Ready to Verify?</h3>
-                    <p className="text-xs text-slate-400 mt-1">
-                      {analysisReadiness?.is_ready
-                        ? 'All required documents are uploaded and processed.'
-                        : missingDocsMessage}
-                    </p>
+                    <label className="flex items-center gap-2 text-sm font-medium text-gray-600 mb-2">
+                      <Linkedin className="w-4 h-4 text-blue-500" />
+                      LinkedIn Profile
+                    </label>
+                    <Input
+                      size="sm"
+                      placeholder="https://linkedin.com/in/yourprofile"
+                      value={linkedinUrl}
+                      onChange={(e) => setLinkedinUrl(e.target.value)}
+                    />
                   </div>
-                  <Button
-                    variant="primary"
-                    onClick={handleStartAnalysis}
-                    disabled={!isAnalysisReady || isStartingAnalysis}
-                    isLoading={isStartingAnalysis}
-                  >
-                    {isStartingAnalysis ? 'Starting...' : 'Start Verification'}
-                  </Button>
+                  <div>
+                    <label className="flex items-center gap-2 text-sm font-medium text-gray-600 mb-2">
+                      <Globe className="w-4 h-4 text-emerald-500" />
+                      Portfolio / Website
+                    </label>
+                    <Input
+                      size="sm"
+                      placeholder="https://yourportfolio.com"
+                      value={portfolioUrl}
+                      onChange={(e) => setPortfolioUrl(e.target.value)}
+                    />
+                  </div>
+                  <div className="flex justify-end pt-2">
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      onClick={handleSaveLinks}
+                      isLoading={isSavingLinks}
+                    >
+                      Save Links
+                    </Button>
+                  </div>
                 </div>
               </CardBody>
             </Card>
@@ -200,33 +268,6 @@ const StudentDashboard: React.FC = () => {
             <TrustScoreCard trustScore={trustScore} isLoading={isLoadingTrustScore} />
           </div>
         </div>
-
-        {/* Info Card */}
-        <Card bordered>
-          <CardBody>
-            <div className="space-y-3">
-              <h3 className="text-sm font-bold text-white">How It Works</h3>
-              <ul className="space-y-2 text-sm text-slate-400">
-                <li className="flex gap-2">
-                  <span className="text-blue-400 font-bold">1.</span>
-                  <span>Upload your resume, certificates, and GitHub URL</span>
-                </li>
-                <li className="flex gap-2">
-                  <span className="text-blue-400 font-bold">2.</span>
-                  <span>Our AI agents verify your documents and validate your skills</span>
-                </li>
-                <li className="flex gap-2">
-                  <span className="text-blue-400 font-bold">3.</span>
-                  <span>Get a trust score badge that recruiters can verify</span>
-                </li>
-                <li className="flex gap-2">
-                  <span className="text-blue-400 font-bold">4.</span>
-                  <span>Make your profile public and get discovered by recruiters</span>
-                </li>
-              </ul>
-            </div>
-          </CardBody>
-        </Card>
       </div>
     </Layout>
   );

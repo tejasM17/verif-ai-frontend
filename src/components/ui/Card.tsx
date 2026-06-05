@@ -16,9 +16,9 @@ export const Card: React.FC<CardProps> = ({
   return (
     <div
       className={`
-        rounded-xl bg-slate-800/40 backdrop-blur-sm
-        ${bordered ? 'border border-slate-700/50' : ''}
-        ${hover ? 'hover:border-slate-600/50 hover:bg-slate-800/60 transition-all duration-200 cursor-pointer' : ''}
+        rounded-2xl bg-white/80 backdrop-blur-md border border-gray-200/50
+        ${bordered ? 'border border-gray-200/80 shadow-sm' : ''}
+        ${hover ? 'hover:border-blue-200 hover:shadow-lg hover:shadow-blue-500/5 transition-all duration-300 cursor-pointer' : ''}
         ${className || ''}
       `}
       {...props}
@@ -36,7 +36,7 @@ interface CardHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export const CardHeader: React.FC<CardHeaderProps> = ({ children, className, ...props }) => (
-  <div className={`p-4 border-b border-slate-700/30 ${className || ''}`} {...props}>
+  <div className={`p-5 border-b border-gray-100 ${className || ''}`} {...props}>
     {children}
   </div>
 );
@@ -48,7 +48,7 @@ interface CardBodyProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export const CardBody: React.FC<CardBodyProps> = ({ children, className, ...props }) => (
-  <div className={`p-4 ${className || ''}`} {...props}>
+  <div className={`p-5 ${className || ''}`} {...props}>
     {children}
   </div>
 );
@@ -60,7 +60,7 @@ interface CardFooterProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export const CardFooter: React.FC<CardFooterProps> = ({ children, className, ...props }) => (
-  <div className={`p-4 border-t border-slate-700/30 flex items-center justify-between ${className || ''}`} {...props}>
+  <div className={`p-5 border-t border-gray-100 flex items-center justify-between ${className || ''}`} {...props}>
     {children}
   </div>
 );

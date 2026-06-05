@@ -10,18 +10,18 @@ interface BadgeProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const variantClasses: Record<BadgeVariant, string> = {
-  default: 'bg-slate-700/50 text-slate-200 border border-slate-600/30',
-  success: 'bg-emerald-600/20 text-emerald-300 border border-emerald-500/30',
-  warning: 'bg-amber-600/20 text-amber-300 border border-amber-500/30',
-  error: 'bg-red-600/20 text-red-300 border border-red-500/30',
-  info: 'bg-blue-600/20 text-blue-300 border border-blue-500/30',
-  secondary: 'bg-purple-600/20 text-purple-300 border border-purple-500/30',
+  default: 'bg-gray-100 text-gray-600 border border-gray-200',
+  success: 'bg-emerald-50 text-emerald-600 border border-emerald-100',
+  warning: 'bg-amber-50 text-amber-600 border border-amber-100',
+  error: 'bg-red-50 text-red-600 border border-red-100',
+  info: 'bg-blue-50 text-blue-600 border border-blue-100',
+  secondary: 'bg-purple-50 text-purple-600 border border-purple-100',
 };
 
 const sizeClasses: Record<BadgeSize, string> = {
-  sm: 'px-2 py-0.5 text-xs',
-  md: 'px-2.5 py-1 text-sm',
-  lg: 'px-3 py-1.5 text-base',
+  sm: 'px-2 py-0.5 text-xs rounded-md',
+  md: 'px-2.5 py-1 text-xs rounded-lg',
+  lg: 'px-3 py-1.5 text-sm rounded-lg',
 };
 
 export const Badge: React.FC<BadgeProps> = ({
@@ -34,7 +34,7 @@ export const Badge: React.FC<BadgeProps> = ({
   return (
     <div
       className={`
-        inline-flex items-center justify-center font-medium rounded-full
+        inline-flex items-center justify-center font-medium
         ${variantClasses[variant]} ${sizeClasses[size]} ${className || ''}
       `}
       {...props}

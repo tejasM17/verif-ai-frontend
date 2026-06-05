@@ -7,9 +7,15 @@ import RegisterPage from './pages/RegisterPage';
 import StudentDashboard from './pages/StudentDashboard';
 import StudentHomePage from './pages/StudentHomePage';
 import RecruiterDashboard from './pages/RecruiterDashboard';
+import RecruiterHomePage from './pages/RecruiterHomePage';
+import ApplicationDetailPage from './pages/ApplicationDetailPage';
+import MyDocumentsPage from './pages/MyDocumentsPage';
+import ShortlistPage from './pages/ShortlistPage';
 import PublicProfilePage from './pages/PublicProfilePage';
 import SettingsPage from './pages/SettingsPage';
 import { useAuthStore } from './store/authStore';
+import { ErrorBoundary } from './components/ErrorBoundary';
+import { PageTransition } from './components/PageTransition';
 
 const ProtectedRoute: React.FC<{
   element: React.ReactNode;
@@ -32,62 +38,90 @@ const App: React.FC = () => {
   const { isAuthenticated, user } = useAuthStore();
 
   return (
-    <Router>
-      <Toaster position="top-right" />
-      <Routes>
-        <Route path="/login" element={!isAuthenticated ? <LoginPage /> : <Navigate to="/dashboard" />} />
-        <Route path="/register" element={!isAuthenticated ? <RegisterPage /> : <Navigate to="/dashboard" />} />
-        
-        {/* Dashboard - Route based on role */}
-        <Route 
-          path="/dashboard" 
-          element={
-            isAuthenticated ? (
-              user?.role === 'student' ? (
-                <ProtectedRoute element={<StudentDashboard />} requiredRole="student" />
-              ) : (
-                <ProtectedRoute element={<RecruiterDashboard />} requiredRole="recruiter" />
-              )
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
-        />
+    <ErrorBoundary>
+      <Router>
+        <Toaster position="top-right" />
+        <PageTransition>
+          <Routes>
+            <Route path="/login" element={!isAuthenticated ? <LoginPage /> : <Navigate to={user?.role === 'student' ? '/home' : '/recruiter-home'} />} />
+            <Route path="/register" element={!isAuthenticated ? <RegisterPage /> : <Navigate to={user?.role === 'student' ? '/home' : '/recruiter-home'} />} />
 
-        {/* Student Dashboard */}
-        <Route 
-          path="/student" 
-          element={<ProtectedRoute element={<StudentDashboard />} requiredRole="student" />}
-        />
+            {/* Dashboard - Route based on role */}
+            <Route
+              path="/dashboard"
+              element={
+                isAuthenticated ? (
+                  user?.role === 'student' ? (
+                    <ProtectedRoute element={<StudentDashboard />} requiredRole="student" />
+                  ) : (
+                    <ProtectedRoute element={<RecruiterDashboard />} requiredRole="recruiter" />
+                  )
+                ) : (
+                  <Navigate to="/login" />
+                )
+              }
+            />
 
-        {/* Student Home Page - Job Search */}
-        <Route 
-          path="/home" 
-          element={<ProtectedRoute element={<StudentHomePage />} requiredRole="student" />}
-        />
+            {/* Student Dashboard */}
+            <Route
+              path="/student"
+              element={<ProtectedRoute element={<StudentDashboard />} requiredRole="student" />}
+            />
 
-        {/* Recruiter Discovery */}
-        <Route 
-          path="/discover" 
-          element={<ProtectedRoute element={<RecruiterDashboard />} requiredRole="recruiter" />}
-        />
+            {/* Student Home Page - Job Search */}
+            <Route
+              path="/home"
+              element={<ProtectedRoute element={<StudentHomePage />} requiredRole="student" />}
+            />
 
-        {/* Public Profile */}
-        <Route 
-          path="/profile/:userId" 
-          element={<ProtectedRoute element={<PublicProfilePage />} requiredRole="recruiter" />}
-        />
+            {/* Recruiter Discovery */}
+            <Route
+              path="/discover"
+              element={<ProtectedRoute element={<RecruiterDashboard />} requiredRole="recruiter" />}
+            />
 
-        {/* Settings */}
-        <Route 
-          path="/settings" 
-          element={<ProtectedRoute element={<SettingsPage />} />}
-        />
-        
-        <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" /> : <LandingPage />} />
-        <Route path="*" element={<Navigate to="/" />} />
-      </Routes>
-    </Router>
+            {/* Recruiter Home - Applications */}
+            <Route
+              path="/recruiter-home"
+              element={<ProtectedRoute element={<RecruiterHomePage />} requiredRole="recruiter" />}
+            />
+
+            {/* Application Detail */}
+            <Route
+              path="/recruiter/application/:applicationId"
+              element={<ProtectedRoute element={<ApplicationDetailPage />} requiredRole="recruiter" />}
+            />
+
+            {/* My Documents (Student) */}
+            <Route
+              path="/documents"
+              element={<ProtectedRoute element={<MyDocumentsPage />} requiredRole="student" />}
+            />
+
+            {/* Shortlist (Recruiter) */}
+            <Route
+              path="/shortlist"
+              element={<ProtectedRoute element={<ShortlistPage />} requiredRole="recruiter" />}
+            />
+
+            {/* Public Profile */}
+            <Route
+              path="/profile/:userId"
+              element={<ProtectedRoute element={<PublicProfilePage />} requiredRole="recruiter" />}
+            />
+
+            {/* Settings */}
+            <Route
+              path="/settings"
+              element={<ProtectedRoute element={<SettingsPage />} />}
+            />
+
+            <Route path="/" element={isAuthenticated ? <Navigate to={user?.role === 'student' ? '/home' : '/recruiter-home'} /> : <LandingPage />} />
+            <Route path="*" element={<Navigate to="/" />} />
+          </Routes>
+        </PageTransition>
+      </Router>
+    </ErrorBoundary>
   );
 };
 
