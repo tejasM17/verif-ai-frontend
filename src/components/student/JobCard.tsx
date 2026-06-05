@@ -1,71 +1,84 @@
 import React from 'react';
-import { MapPin, Clock } from 'lucide-react';
+import { MapPin, Clock, ExternalLink } from 'lucide-react';
 
-export interface JobCardProps {
-  company: string;
-  logoColor: string;
-  logoInitials: string;
-  title: string;
+interface JobCardProps {
+  companyLogoInitials: string;
+  companyName: string;
+  timeAgo: string;
+  jobTitle: string;
   location: string;
-  type: string;
-  postedAt: string;
+  jobType: string;
   skills: string[];
-  salary: string;
-  animationDelayClass: string;
+  salaryRange: string;
+  animationDelay?: string;
+  logoColor?: string;
 }
 
 const JobCard: React.FC<JobCardProps> = ({
-  company,
-  logoColor,
-  logoInitials,
-  title,
+  companyLogoInitials,
+  companyName,
+  timeAgo,
+  jobTitle,
   location,
-  type,
-  postedAt,
+  jobType,
   skills,
-  salary,
-  animationDelayClass,
+  salaryRange,
+  animationDelay = '0ms',
+  logoColor = 'bg-blue-500',
 }) => {
   return (
-    <div className={`bg-white rounded-2xl border border-slate-200 p-5 hover:border-indigo-300 hover:shadow-sm hover:shadow-indigo-50 transition duration-200 cursor-pointer animate-fade-slide-up opacity-0 ${animationDelayClass}`}>
-      <div className="flex justify-between items-start">
-        <div className="flex items-center gap-3">
-          <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm ${logoColor}`}>
-            {logoInitials}
+    <div
+      className="group bg-white rounded-2xl border border-slate-200 p-5 hover:border-indigo-300 hover:shadow-lg hover:shadow-indigo-50/60 transition-all duration-200 cursor-pointer animate-fade-slide-up"
+      style={{ animationDelay }}
+    >
+      {/* Top row: company + time */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <div
+            className={`w-10 h-10 rounded-xl ${logoColor} flex items-center justify-center text-white font-bold text-sm shadow-sm`}
+          >
+            {companyLogoInitials}
           </div>
-          <span className="text-sm text-slate-500">{company}</span>
+          <span className="text-sm font-medium text-slate-600">{companyName}</span>
         </div>
-        <span className="text-xs text-slate-400">{postedAt}</span>
+        <span className="text-xs text-slate-400">{timeAgo}</span>
       </div>
 
-      <h3 className="text-base font-semibold text-slate-900 mt-3">{title}</h3>
-      
-      <div className="flex gap-3 mt-1">
-        <div className="flex items-center gap-1 text-xs text-slate-500">
-          <MapPin className="w-3 h-3" />
-          {location}
+      {/* Job title */}
+      <h3 className="text-base font-bold text-slate-900 mt-3 group-hover:text-indigo-700 transition-colors">
+        {jobTitle}
+      </h3>
+
+      {/* Location + type */}
+      <div className="flex items-center gap-4 text-xs text-slate-500 mt-1.5">
+        <div className="flex items-center gap-1">
+          <MapPin className="w-3 h-3 text-slate-400" />
+          <span>{location}</span>
         </div>
-        <div className="flex items-center gap-1 text-xs text-slate-500">
-          <Clock className="w-3 h-3" />
-          {type}
+        <div className="flex items-center gap-1">
+          <Clock className="w-3 h-3 text-slate-400" />
+          <span>{jobType}</span>
         </div>
       </div>
 
-      <div className="flex gap-2 mt-4">
-        {skills.map((skill) => (
+      {/* Skill tags */}
+      <div className="flex flex-wrap gap-1.5 mt-3">
+        {skills.map((skill, index) => (
           <span
-            key={skill}
-            className="bg-slate-100 text-slate-600 text-[10px] px-2.5 py-1 rounded-full border border-slate-200"
+            key={index}
+            className="bg-slate-100 text-slate-600 text-xs px-2.5 py-0.5 rounded-full border border-slate-200"
           >
             {skill}
           </span>
         ))}
       </div>
 
-      <div className="flex justify-between items-center mt-5">
-        <span className="text-sm font-medium text-emerald-600">{salary}</span>
-        <button className="text-xs bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-500 transition font-medium">
+      {/* Salary + Apply */}
+      <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-100">
+        <span className="text-sm font-semibold text-emerald-600">{salaryRange}</span>
+        <button className="flex items-center gap-1.5 text-xs bg-indigo-600 text-white px-4 py-1.5 rounded-lg hover:bg-indigo-500 active:scale-95 transition-all font-medium shadow-sm shadow-indigo-200">
           Apply Now
+          <ExternalLink className="w-3 h-3" />
         </button>
       </div>
     </div>

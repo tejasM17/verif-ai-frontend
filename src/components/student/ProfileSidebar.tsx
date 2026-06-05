@@ -1,134 +1,110 @@
 import React, { useState } from 'react';
-import { 
-  FileText, 
-  Award, 
-  Github, 
-  Globe, 
-  Linkedin, 
-  ExternalLink, 
-  Camera, 
-  Briefcase, 
-  GraduationCap 
-} from 'lucide-react';
+import { Camera, Briefcase, GraduationCap, Globe, Linkedin, ExternalLink } from 'lucide-react';
 import UploadRow from './UploadRow';
+import { useAuthStore } from '../../store/authStore';
 
 const ProfileSidebar: React.FC = () => {
-  const [isHoveringAvatar, setIsHoveringAvatar] = useState(false);
+  const [isHoveringProfile, setIsHoveringProfile] = useState(false);
+  const { user } = useAuthStore();
+
+  const getInitials = () => {
+    if (user?.display_name) {
+      return user.display_name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2);
+    }
+    if (user?.email) {
+      return user.email.slice(0, 2).toUpperCase();
+    }
+    return 'U';
+  };
 
   return (
-    <aside className="w-80 flex-shrink-0 sticky top-24 h-fit">
-      <div className="glass-card rounded-[32px] p-6">
+    <div className="w-80 flex-shrink-0 sticky top-6">
+      <div className="glass-card rounded-3xl p-5 border border-slate-200 bg-white">
         {/* SECTION A — Profile Header */}
-        <div className="flex flex-col items-center">
-          <div 
-            className="relative w-24 h-24 profile-ring-hover cursor-pointer rounded-full"
-            onMouseEnter={() => setIsHoveringAvatar(true)}
-            onMouseLeave={() => setIsHoveringAvatar(false)}
+        <div className="text-center">
+          <div
+            className="relative w-20 h-20 mx-auto rounded-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-600 shadow-md profile-ring-hover cursor-pointer transition-transform hover:scale-105"
+            onMouseEnter={() => setIsHoveringProfile(true)}
+            onMouseLeave={() => setIsHoveringProfile(false)}
           >
-            <div className="w-full h-full rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white text-3xl font-bold border-4 border-white shadow-sm">
-              PS
-            </div>
-            <div className="absolute bottom-1 right-1 w-5 h-5 bg-emerald-400 rounded-full border-2 border-white" />
-            
-            {isHoveringAvatar && (
-              <div className="absolute inset-0 bg-black/30 rounded-full flex items-center justify-center transition-opacity duration-200">
-                <Camera className="text-white w-6 h-6" />
+            <span className="text-2xl font-bold text-white tracking-wide">{getInitials()}</span>
+            <div className="absolute bottom-1 right-1 w-4 h-4 bg-emerald-400 rounded-full border-2 border-white"></div>
+            {isHoveringProfile && (
+              <div className="absolute inset-0 bg-black/40 flex items-center justify-center backdrop-blur-[2px] transition-all">
+                <Camera className="w-6 h-6 text-white" />
               </div>
             )}
           </div>
-
-          <h2 className="text-xl font-bold text-slate-900 mt-4">Priya Sharma</h2>
-          <p className="text-xs text-slate-500 mt-1 font-medium">B.Tech CSE • NITK 2025</p>
-          
-          <div className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs px-3 py-1 rounded-full flex items-center gap-1.5 mt-3 font-semibold uppercase tracking-wider">
-            <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-            Open to Work
+          <h3 className="text-lg font-bold text-slate-800 mt-3 truncate px-2">
+            {user?.display_name || user?.email?.split('@')[0] || 'Student User'}
+          </h3>
+          <p className="text-xs text-slate-500 mt-0.5 truncate px-2">{user?.email || 'Student'}</p>
+          <div className="inline-flex items-center gap-1.5 mt-2.5 bg-emerald-50 text-emerald-700 border border-emerald-200/60 text-xs font-medium px-3 py-1 rounded-full shadow-sm">
+            <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+            <span>Open to Work</span>
           </div>
         </div>
 
-        <div className="border-t border-slate-100 my-6" />
+        <div className="border-t border-slate-100 my-4"></div>
 
         {/* SECTION B — Upload Documents */}
         <div>
-          <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Verification Documents</h3>
-          <div className="space-y-1">
-            <UploadRow 
-              icon={FileText} 
-              label="Resume" 
-              status="uploaded" 
-              value="resume_priya.pdf" 
-            />
-            <UploadRow 
-              icon={Award} 
-              label="Certificates" 
-              status="uploaded" 
-              value="3 uploaded" 
-            />
-            <UploadRow 
-              icon={Github} 
-              label="GitHub" 
-              status="connected" 
-              value="@priya-sharma" 
-            />
-          </div>
+          <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3">
+            Verification Documents
+          </h4>
+          <UploadRow icon="resume" label="Resume" status="uploaded" value="resume_priya.pdf" />
+          <UploadRow icon="certificate" label="Certificates" status="connected" value="3 uploaded" />
+          <UploadRow icon="github" label="GitHub" status="connected" value="priya-sharma" />
         </div>
 
-        <div className="border-t border-slate-100 my-6" />
+        <div className="border-t border-slate-100 my-4"></div>
 
         {/* SECTION C — Links */}
         <div>
-          <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Profile Links</h3>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Globe className="text-slate-400 w-4 h-4" />
-                <span className="text-sm text-slate-700 font-medium">Portfolio</span>
-              </div>
-              <div className="flex items-center gap-1 group cursor-pointer">
-                <span className="text-xs text-indigo-500 group-hover:underline">priya.dev</span>
-                <ExternalLink className="w-3 h-3 text-indigo-400" />
-              </div>
+          <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3">
+            Profile Links
+          </h4>
+          <div className="flex items-center justify-between py-2">
+            <div className="flex items-center gap-2">
+              <Globe className="w-4 h-4 text-slate-400" />
+              <span className="text-sm text-slate-700">Portfolio</span>
             </div>
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Linkedin className="text-slate-400 w-4 h-4" />
-                <span className="text-sm text-slate-700 font-medium">LinkedIn</span>
-              </div>
-              <div className="flex items-center gap-1 group cursor-pointer">
-                <span className="text-xs text-indigo-500 group-hover:underline">in/priya</span>
-                <ExternalLink className="w-3 h-3 text-indigo-400" />
-              </div>
+            <a href="#" className="text-xs text-indigo-500 hover:underline cursor-pointer flex items-center gap-1">
+              priya.dev <ExternalLink className="w-3 h-3" />
+            </a>
+          </div>
+          <div className="flex items-center justify-between py-2">
+            <div className="flex items-center gap-2">
+              <Linkedin className="w-4 h-4 text-slate-400" />
+              <span className="text-sm text-slate-700">LinkedIn</span>
             </div>
+            <a href="#" className="text-xs text-indigo-500 hover:underline cursor-pointer flex items-center gap-1">
+              linkedin.com/in/priya <ExternalLink className="w-3 h-3" />
+            </a>
           </div>
         </div>
 
-        <div className="border-t border-slate-100 my-6" />
+        <div className="border-t border-slate-100 my-4"></div>
 
         {/* SECTION D — Current Status */}
         <div>
-          <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Currently</h3>
-          <div className="space-y-3">
-            <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-lg bg-slate-50 flex items-center justify-center">
-                <Briefcase className="w-4 h-4 text-slate-400" />
-              </div>
-              <span className="text-sm text-slate-700 font-medium">Working at Infosys</span>
-            </div>
-            <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-lg bg-slate-50 flex items-center justify-center">
-                <GraduationCap className="w-4 h-4 text-slate-400" />
-              </div>
-              <span className="text-sm text-slate-700 font-medium">Studying B.Tech CSE</span>
-            </div>
+          <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3">
+            Currently
+          </h4>
+          <div className="flex items-center gap-2 py-1">
+            <Briefcase className="w-4 h-4 text-slate-400" />
+            <span className="text-sm text-slate-700">Working at Infosys</span>
           </div>
-
-          <button className="w-full text-xs text-indigo-400 hover:text-indigo-600 font-medium mt-6 text-center transition-colors">
+          <div className="flex items-center gap-2 py-1">
+            <GraduationCap className="w-4 h-4 text-slate-400" />
+            <span className="text-sm text-slate-700">Studying B.Tech CSE</span>
+          </div>
+          <button className="text-xs text-indigo-400 hover:text-indigo-600 mt-1">
             + Edit Status
           </button>
         </div>
       </div>
-    </aside>
+    </div>
   );
 };
 
