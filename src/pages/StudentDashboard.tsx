@@ -60,7 +60,15 @@ const StudentDashboard: React.FC = () => {
         toast.success('Analysis started! Check the log below.');
       }
     } catch (error: any) {
-      toast.error(error.message || 'Failed to start analysis');
+      let errorMsg = error.message;
+      if (!errorMsg && error.detail) {
+        if (Array.isArray(error.detail)) {
+          errorMsg = error.detail.map((e: any) => e.msg || JSON.stringify(e)).join(', ');
+        } else if (typeof error.detail === 'string') {
+          errorMsg = error.detail;
+        }
+      }
+      toast.error(errorMsg || error.error || 'Failed to start analysis');
     } finally {
       setIsStartingAnalysis(false);
     }

@@ -8,9 +8,21 @@ export const analysisApi = {
    */
   start: async (): Promise<AnalysisResponse> => {
     try {
-      const response = await client.post<AnalysisResponse>(
+      const response = await client.post<any>(
         '/api/v1/analysis/start'
       );
+      // Backend returns { job_id: '...', websocket_url: '...' }
+      // Map it to AnalysisResponse format expected by frontend
+      if (response.data && response.data.job_id) {
+        return {
+          success: true,
+          message: 'Analysis started',
+          data: {
+            analysis_id: response.data.job_id,
+            status: 'processing'
+          }
+        };
+      }
       return response.data;
     } catch (error: any) {
       throw error.response?.data || error;
