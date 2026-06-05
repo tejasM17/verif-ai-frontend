@@ -14,6 +14,7 @@ This file tracks the implementation status of the frontend, mapping components t
 - [x] Main Navigation/Layout
 
 ## 📊 Phase 2: Student Dashboard & Analysis
+- [x] Student Home Page (Jobs, Search, Filters, Sidebar)
 - [ ] Document Upload Panel
 - [ ] Trust Score Display
 - [ ] Live Research Log Stream (WebSocket)

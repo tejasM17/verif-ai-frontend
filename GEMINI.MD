@@ -432,6 +432,7 @@ VITE_API_BASE_URL=https://verif-ai-backend.onrender.com
 - [x] Redirect by role after login (student → `/dashboard`, recruiter → `/discover`)
 
 ### Phase 2: Student Dashboard
+- [x] `StudentHomePage.tsx` — job listings, search, filters, profile sidebar
 - [ ] `UploadPanel.tsx` — drag-drop resume PDF + certificates
 - [ ] Wire to `POST /api/v1/documents/upload`
 - [ ] "Analyze" button → `POST /api/v1/analysis/start` → get `websocket_url`

@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Toaster } from 'react-hot-toast';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import StudentHomePage from './pages/StudentHomePage';
 import Layout from './components/Layout';
 import { useAuthStore } from './store/authStore';
 import { Sparkles, ArrowUpRight, TrendingUp, ShieldCheck, FileText } from 'lucide-react';
@@ -81,6 +82,8 @@ const App: React.FC = () => {
             )
           } 
         />
+
+        <Route path="/student-home" element={<StudentHomePage />} />
         
         <Route path="/" element={<Navigate to="/login" />} />
       </Routes>
