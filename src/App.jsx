@@ -1,122 +1,104 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { lazy, Suspense } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import { AuthLayout } from './components/auth';
 
-function App() {
-  const [count, setCount] = useState(0)
+const StudentLogin = lazy(() => import('./pages/StudentLogin'));
+const StudentSignup = lazy(() => import('./pages/StudentSignup'));
+const RecruiterLogin = lazy(() => import('./pages/RecruiterLogin'));
+const RecruiterSignup = lazy(() => import('./pages/RecruiterSignup'));
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
+const VerifyEmail = lazy(() => import('./pages/VerifyEmail'));
+const ResetPassword = lazy(() => import('./pages/ResetPassword'));
+const SessionExpired = lazy(() => import('./pages/SessionExpired'));
 
+function AuthPagesLayout() {
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+    <AuthLayout>
+      <Suspense
+        fallback={
+          <div className="flex min-h-[400px] items-center justify-center">
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
+          </div>
+        }
+      >
+        <Outlet />
+      </Suspense>
+    </AuthLayout>
+  );
 }
 
-export default App
+function LoadingFallback() {
+  return (
+    <div className="flex min-h-dvh items-center justify-center bg-background dark:bg-dark-background">
+      <div className="flex flex-col items-center gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 shadow-lg shadow-primary-500/20">
+          <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+        </div>
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
+      </div>
+    </div>
+  );
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <Suspense fallback={<LoadingFallback />}>
+          <Routes>
+            <Route path="/" element={<Navigate to="/auth/student/login" replace />} />
+
+            <Route path="/auth" element={<AuthPagesLayout />}>
+              <Route path="student/login" element={<StudentLogin />} />
+              <Route path="student/signup" element={<StudentSignup />} />
+              <Route path="recruiter/login" element={<RecruiterLogin />} />
+              <Route path="recruiter/signup" element={<RecruiterSignup />} />
+              <Route path="forgot-password" element={<ForgotPassword />} />
+            </Route>
+
+            <Route path="/verify-email" element={
+              <AuthLayout>
+                <Suspense fallback={
+                  <div className="flex min-h-[400px] items-center justify-center">
+                    <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
+                  </div>
+                }>
+                  <VerifyEmail />
+                </Suspense>
+              </AuthLayout>
+            } />
+
+            <Route path="/reset-password" element={
+              <AuthLayout>
+                <Suspense fallback={
+                  <div className="flex min-h-[400px] items-center justify-center">
+                    <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
+                  </div>
+                }>
+                  <ResetPassword />
+                </Suspense>
+              </AuthLayout>
+            } />
+
+            <Route path="/session-expired" element={
+              <AuthLayout>
+                <Suspense fallback={
+                  <div className="flex min-h-[400px] items-center justify-center">
+                    <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
+                  </div>
+                }>
+                  <SessionExpired />
+                </Suspense>
+              </AuthLayout>
+            } />
+
+            <Route path="*" element={<Navigate to="/auth/student/login" replace />} />
+          </Routes>
+        </Suspense>
+      </AuthProvider>
+    </BrowserRouter>
+  );
+}
