@@ -12,7 +12,7 @@ import {
   Code2,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { createUserWithEmailAndPassword, sendEmailVerification } from '../lib/firebase';
+import { auth, createUserWithEmailAndPassword, sendEmailVerification } from '../lib/firebase';
 import { useAuth } from '../context/AuthContext';
 import { studentSignupSchema } from '../lib/validators';
 import {
@@ -60,7 +60,7 @@ export default function StudentSignup() {
     setError('');
     try {
       const firebaseAction = createUserWithEmailAndPassword(
-        (await import('../lib/firebase')).auth,
+        auth,
         data.email,
         data.password
       ).then(async (cred) => {

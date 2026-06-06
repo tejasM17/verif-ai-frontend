@@ -11,7 +11,7 @@ import {
   Briefcase,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { createUserWithEmailAndPassword, sendEmailVerification } from '../lib/firebase';
+import { auth, createUserWithEmailAndPassword, sendEmailVerification } from '../lib/firebase';
 import { useAuth } from '../context/AuthContext';
 import { recruiterSignupSchema } from '../lib/validators';
 import {
@@ -58,7 +58,7 @@ export default function RecruiterSignup() {
     setError('');
     try {
       const firebaseAction = createUserWithEmailAndPassword(
-        (await import('../lib/firebase')).auth,
+        auth,
         data.email,
         data.password
       ).then(async (cred) => {

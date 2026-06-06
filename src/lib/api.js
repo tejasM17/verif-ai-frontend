@@ -106,12 +106,41 @@ async function attemptTokenRefresh() {
 }
 
 async function getFirebaseToken(firebaseUser) {
-  if (!firebaseUser) return null;
-  try {
-    const token = await firebaseUser.getIdToken(true);
-    return token;
-  } catch {
+  if (!firebaseUser) {
+    console.error('[Auth] getFirebaseToken called with null/undefined user');
     return null;
+  }
+
+  const uid = firebaseUser.uid;
+  const email = firebaseUser.email || 'unknown';
+
+  async function fetchToken() {
+    const token = await firebaseUser.getIdToken(true);
+    if (!token || typeof token !== 'string') {
+      throw new Error('getIdToken returned invalid token');
+    }
+    console.log(`[Auth] Token OK: uid=${uid}, email=${email}, token_length=${token.length}`);
+    return token;
+  }
+
+  try {
+    return await fetchToken();
+  } catch (error) {
+    console.warn(
+      `[Auth] Token fetch failed (attempt 1): uid=${uid}, error=${error.code || error.message}`
+    );
+    console.log(`[Auth] Retrying token fetch for uid=${uid} after 1.5s delay...`);
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+
+    try {
+      const token = await fetchToken();
+      return token;
+    } catch (retryError) {
+      console.error(
+        `[Auth] Token fetch failed (attempt 2): uid=${uid}, error=${retryError.code || retryError.message}`
+      );
+      return null;
+    }
   }
 }
 

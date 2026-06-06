@@ -1,5 +1,5 @@
 import { createContext, useContext, useReducer, useEffect, useCallback } from 'react';
-import { auth, onAuthStateChanged, signOut as firebaseSignOut } from '../lib/firebase';
+import { auth, onAuthStateChanged, signInWithEmailAndPassword, signOut as firebaseSignOut } from '../lib/firebase';
 import { authApi, getFirebaseToken, setTokens, clearTokens, getRefreshToken } from '../lib/api';
 
 const AuthContext = createContext(null);
@@ -62,11 +62,14 @@ export function AuthProvider({ children }) {
   const login = useCallback(async (email, password, role) => {
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
-      const { signInWithEmailAndPassword } = await import('../lib/firebase');
+      console.log(`[Auth] Signing in Firebase user: email=${email}`);
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      console.log(`[Auth] Firebase sign-in OK: uid=${userCredential.user.uid}, email=${userCredential.user.email}`);
+
       const firebaseToken = await getFirebaseToken(userCredential.user);
       if (!firebaseToken) throw new Error('Failed to get authentication token');
 
+      console.log(`[Auth] Calling backend POST /auth/login for uid=${userCredential.user.uid}`);
       const response = await authApi.login(firebaseToken);
       const { access_token, refresh_token, user } = response.data;
 
@@ -78,9 +81,12 @@ export function AuthProvider({ children }) {
         payload: { user: { ...user, email: userCredential.user.email }, role },
       });
 
+      console.log(`[Auth] Login complete: uid=${userCredential.user.uid}, role=${role}`);
       return response.data;
     } catch (error) {
-      dispatch({ type: 'SET_ERROR', payload: error.message });
+      const message = error.code || error.message || 'Login failed';
+      console.error(`[Auth] Login failed: ${message}`, error);
+      dispatch({ type: 'SET_ERROR', payload: message });
       throw error;
     }
   }, []);
@@ -89,6 +95,8 @@ export function AuthProvider({ children }) {
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
       const userCredential = await firebaseAction;
+      console.log(`[Auth] Firebase user created: uid=${userCredential.user.uid}, email=${userCredential.user.email}`);
+
       const firebaseToken = await getFirebaseToken(userCredential.user);
       if (!firebaseToken) throw new Error('Failed to get authentication token');
 
@@ -96,6 +104,8 @@ export function AuthProvider({ children }) {
         ? authApi.registerStudent
         : authApi.registerRecruiter;
 
+      const endpoint = role === 'student' ? '/auth/student/register' : '/auth/recruiter/register';
+      console.log(`[Auth] Calling backend POST ${endpoint} for uid=${userCredential.user.uid}`);
       const response = await registerFn(firebaseToken, profileData);
       const { access_token, refresh_token, user } = response.data;
 
@@ -107,9 +117,12 @@ export function AuthProvider({ children }) {
         payload: { user: { ...user, email: userCredential.user.email }, role },
       });
 
+      console.log(`[Auth] Registration complete: uid=${userCredential.user.uid}, role=${role}`);
       return response.data;
     } catch (error) {
-      dispatch({ type: 'SET_ERROR', payload: error.message });
+      const message = error.code || error.message || 'Registration failed';
+      console.error(`[Auth] Registration failed: ${message}`, error);
+      dispatch({ type: 'SET_ERROR', payload: message });
       throw error;
     }
   }, []);
