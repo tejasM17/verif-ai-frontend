@@ -2,15 +2,22 @@ import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { AuthLayout } from './components/auth';
+import { RequireAuth, RequireRole } from './components/auth/RouteGuards';
+import ErrorBoundary from './components/common/ErrorBoundary';
 
 const StudentLogin = lazy(() => import('./pages/StudentLogin'));
 const StudentSignup = lazy(() => import('./pages/StudentSignup'));
 const RecruiterLogin = lazy(() => import('./pages/RecruiterLogin'));
 const RecruiterSignup = lazy(() => import('./pages/RecruiterSignup'));
+const RoleChooser = lazy(() => import('./pages/RoleChooser'));
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
 const VerifyEmail = lazy(() => import('./pages/VerifyEmail'));
 const ResetPassword = lazy(() => import('./pages/ResetPassword'));
 const SessionExpired = lazy(() => import('./pages/SessionExpired'));
+const Forbidden = lazy(() => import('./pages/Forbidden'));
+const StudentDashboard = lazy(() => import('./pages/StudentDashboard'));
+const RecruiterDashboard = lazy(() => import('./pages/RecruiterDashboard'));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 
 function AuthPagesLayout() {
   return (
@@ -48,8 +55,11 @@ export default function App() {
     <BrowserRouter>
       <AuthProvider>
         <Suspense fallback={<LoadingFallback />}>
-          <Routes>
-            <Route path="/" element={<Navigate to="/auth/student/login" replace />} />
+          <ErrorBoundary title="Application Error" message="An unexpected error occurred. Please try refreshing the page.">
+            <Routes>
+            <Route path="/" element={<Navigate to="/role-chooser" replace />} />
+
+            <Route path="/role-chooser" element={<RoleChooser />} />
 
             <Route path="/auth" element={<AuthPagesLayout />}>
               <Route path="student/login" element={<StudentLogin />} />
@@ -95,8 +105,66 @@ export default function App() {
               </AuthLayout>
             } />
 
-            <Route path="*" element={<Navigate to="/auth/student/login" replace />} />
+            <Route path="/forbidden" element={
+              <Suspense fallback={<LoadingFallback />}>
+                <Forbidden />
+              </Suspense>
+            } />
+
+            <Route
+              path="/student/dashboard"
+              element={
+                <RequireAuth>
+                  <RequireRole role="student">
+                    <Suspense fallback={
+                      <div className="flex min-h-dvh items-center justify-center bg-dark-background">
+                        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
+                      </div>
+                    }>
+                      <StudentDashboard />
+                    </Suspense>
+                  </RequireRole>
+                </RequireAuth>
+              }
+            />
+
+            <Route
+              path="/recruiter/dashboard"
+              element={
+                <RequireAuth>
+                  <RequireRole role="recruiter">
+                    <Suspense fallback={
+                      <div className="flex min-h-dvh items-center justify-center bg-dark-background">
+                        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
+                      </div>
+                    }>
+                      <RecruiterDashboard />
+                    </Suspense>
+                  </RequireRole>
+                </RequireAuth>
+              }
+            />
+
+            <Route
+              path="/admin/dashboard"
+              element={
+                <RequireAuth>
+                  <RequireRole role="admin">
+                    <Suspense fallback={
+                      <div className="flex min-h-dvh items-center justify-center bg-dark-background">
+                        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
+                      </div>
+                    }>
+                      <AdminDashboard />
+                    </Suspense>
+                  </RequireRole>
+                </RequireAuth>
+              }
+            />
+
+            <Route path="*" element={<Navigate to="/role-chooser" replace />} />
           </Routes>
+          </ErrorBoundary>
         </Suspense>
       </AuthProvider>
     </BrowserRouter>

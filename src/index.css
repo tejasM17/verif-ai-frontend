@@ -230,4 +230,22 @@
   .stat-card {
     @apply rounded-xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm;
   }
+
+  .dark ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  .dark ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .dark ::-webkit-scrollbar-thumb {
+    background: var(--color-dark-border);
+    border-radius: 2px;
+  }
+
+  .dark ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-dark-muted);
+  }
 }

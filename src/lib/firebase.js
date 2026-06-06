@@ -1,6 +1,8 @@
 import { initializeApp } from 'firebase/app';
 import {
   getAuth,
+  setPersistence,
+  browserLocalPersistence,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   sendEmailVerification,
@@ -8,7 +10,7 @@ import {
   confirmPasswordReset,
   verifyPasswordResetCode,
   onAuthStateChanged,
-  signOut
+  signOut,
 } from 'firebase/auth';
 
 const firebaseConfig = {
@@ -23,6 +25,39 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
+setPersistence(auth, browserLocalPersistence).then(() => {
+  console.log(JSON.stringify({
+    level: 'info',
+    message: 'Firebase persistence set to LOCAL',
+    timestamp: new Date().toISOString(),
+  }));
+}).catch((err) => {
+  console.warn(JSON.stringify({
+    level: 'warn',
+    message: 'Firebase persistence set failed',
+    error: err.message,
+    timestamp: new Date().toISOString(),
+  }));
+});
+
+function waitForAuthReady(timeoutMs = 5000) {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      unsubscribe();
+      resolve(null);
+    }, timeoutMs);
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      clearTimeout(timer);
+      unsubscribe();
+      resolve(user);
+    }, (error) => {
+      clearTimeout(timer);
+      unsubscribe();
+      reject(error);
+    });
+  });
+}
+
 export {
   auth,
   signInWithEmailAndPassword,
@@ -32,7 +67,8 @@ export {
   confirmPasswordReset,
   verifyPasswordResetCode,
   onAuthStateChanged,
-  signOut
+  signOut,
+  waitForAuthReady,
 };
 
 export default app;

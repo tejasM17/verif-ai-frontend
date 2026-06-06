@@ -6,3 +6,7 @@ export { default as ForgotPassword } from './ForgotPassword';
 export { default as VerifyEmail } from './VerifyEmail';
 export { default as ResetPassword } from './ResetPassword';
 export { default as SessionExpired } from './SessionExpired';
+export { default as RoleChooser } from './RoleChooser';
+export { default as Forbidden } from './Forbidden';
+export { default as RecruiterDashboard } from './RecruiterDashboard';
+export { default as AdminDashboard } from './AdminDashboard';

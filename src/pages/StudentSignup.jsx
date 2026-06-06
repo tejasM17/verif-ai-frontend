@@ -1,32 +1,20 @@
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useState, useEffect } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate, Navigate } from 'react-router-dom';
 import {
-  Mail,
-  User,
-  Phone,
-  GraduationCap,
-  BookOpen,
-  Calendar,
-  Code2,
+  Mail, User, Phone, GraduationCap, BookOpen, Calendar, Code2,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { auth, createUserWithEmailAndPassword, sendEmailVerification } from '../lib/firebase';
 import { useAuth } from '../context/AuthContext';
 import { studentSignupSchema } from '../lib/validators';
 import {
-  AuthCard,
-  AuthHeader,
-  AuthInput,
-  PasswordInput,
-  FormError,
-  LoadingButton,
-  AuthFooter,
+  AuthCard, AuthHeader, AuthInput, PasswordInput,
+  FormError, LoadingButton, AuthFooter, RetryBanner, PasswordStrengthMeter,
 } from '../components/auth';
 
 export default function StudentSignup() {
-  const { register: registerUser, isAuthenticated, role } = useAuth();
+  const { register: registerUser, isAuthenticated, role, isRetrying, retryMessage } = useAuth();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -34,22 +22,24 @@ export default function StudentSignup() {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(studentSignupSchema),
     defaultValues: {
-      fullName: '',
-      email: '',
-      phone: '',
-      password: '',
-      confirmPassword: '',
-      collegeName: '',
-      branch: '',
-      graduationYear: '',
-      skills: '',
-      agreeToTerms: false,
+      fullName: '', email: '', phone: '', password: '',
+      confirmPassword: '', collegeName: '', branch: '',
+      graduationYear: '', skills: '', agreeToTerms: false,
     },
   });
+
+  const watchedPassword = useWatch({ control, name: 'password' });
+
+  useEffect(() => {
+    if (!isLoading && isAuthenticated && role === 'student') {
+      navigate('/student/dashboard', { replace: true });
+    }
+  }, [isAuthenticated, role, isLoading, navigate]);
 
   if (isAuthenticated && role === 'student') {
     return <Navigate to="/student/dashboard" replace />;
@@ -59,16 +49,7 @@ export default function StudentSignup() {
     setIsLoading(true);
     setError('');
     try {
-      const firebaseAction = createUserWithEmailAndPassword(
-        auth,
-        data.email,
-        data.password
-      ).then(async (cred) => {
-        await sendEmailVerification(cred.user);
-        return cred;
-      });
-
-      await registerUser(firebaseAction, {
+      await registerUser(data.email, data.password, {
         full_name: data.fullName,
         phone: data.phone,
         college_name: data.collegeName,
@@ -83,6 +64,8 @@ export default function StudentSignup() {
         setError('An account with this email already exists. Please sign in.');
       } else if (err.code === 'auth/weak-password') {
         setError('Password is too weak. Please use a stronger password.');
+      } else if (err.code === 'auth/network-request-failed') {
+        setError('Network error. Please check your connection.');
       } else {
         setError(err.message || 'Registration failed. Please try again.');
       }
@@ -105,6 +88,7 @@ export default function StudentSignup() {
         />
 
         <FormError message={error} />
+        <RetryBanner message={isRetrying ? retryMessage : null} />
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -170,12 +154,15 @@ export default function StudentSignup() {
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <PasswordInput
-              label="Password"
-              placeholder="Create a strong password"
-              error={errors.password?.message}
-              {...register('password')}
-            />
+            <div className="space-y-1">
+              <PasswordInput
+                label="Password"
+                placeholder="Create a strong password"
+                error={errors.password?.message}
+                {...register('password')}
+              />
+              <PasswordStrengthMeter password={watchedPassword || ''} />
+            </div>
             <PasswordInput
               label="Confirm Password"
               placeholder="Confirm your password"
