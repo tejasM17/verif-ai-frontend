@@ -1,172 +1,110 @@
-# Project Overview
+# VerifAI Frontend — Agent Guide
 
-- **Name:** VerifAI
-- **Purpose:** Two-sided hiring platform connecting students with recruiters via credential verification & AI matching
-- **Frontend:** React 19, Vite 8, Tailwind CSS 4, Framer Motion 12, React Router DOM 7, React Hook Form 7, Zod 4, Lucide React
-- **Backend:** Python FastAPI (localhost:8000), Firebase Auth
-- **Status:** Early stage — auth flows only, no dashboard pages
+## Quick Start
 
-# Architecture
+```bash
+npm install
+npm run dev          # Vite dev server on http://localhost:5173
+npm run build        # Production build to dist/
+npm run lint         # ESLint
+```
 
-| Layer | Stack |
-|-------|-------|
-| Frontend | React 19 SPA (no SSR), Vite 8 dev server on :3000 |
-| Backend | Python FastAPI at `VITE_API_URL` (default `localhost:8000`) |
+## Stack
+
+| Layer | Tech |
+|-------|------|
+| Framework | React 19 + Vite 8 |
+| Routing | React Router DOM 7 |
+| Styling | Tailwind CSS 4 (via `@tailwindcss/vite`) |
+| Forms | React Hook Form 7 + Zod 4 |
+| Animation | Framer Motion 12 |
 | Auth Identity | Firebase Auth (email/password) |
-| Auth Sessions | Custom JWT (access + refresh tokens) from FastAPI |
-| Validation | Zod 4 on frontend, FastAPI/Pydantic on backend |
-| Styling | Tailwind CSS 4 via `@tailwindcss/vite`, dark mode via `.dark` class |
-| Path alias | `@` → `/src` |
+| Auth Sessions | Backend JWT (HTTP-only cookies + Bearer header) |
 
-# Folder Map
+## Architecture
 
-| Directory | Purpose |
-|-----------|---------|
-| `src/lib/` | API client, Firebase init, Zod validators |
-| `src/context/` | AuthContext with useReducer (single auth provider) |
-| `src/components/auth/` | Auth UI primitives (card, input, button, layout) |
-| `src/pages/` | Page components, all lazy-loaded via `React.lazy()` |
-| `src/hooks/` | Reserved for custom hooks (empty) |
-| `src/components/ui/` | Reserved for shared UI primitives (empty) |
+```
+src/
+├── lib/
+│   ├── api.js              # Fetch wrapper, token management, auth interceptor
+│   ├── firebase.js          # Firebase init, auth helpers
+│   ├── validators.js        # Zod schemas
+│   └── normalizeStudentProfile.js
+├── context/
+│   └── AuthContext.jsx      # Auth state (useReducer), login/register/logout
+├── hooks/
+│   └── useStudentProfile.js
+├── services/                # API service modules (student, recruiter, application, company)
+├── pages/                   # Lazy-loaded route components
+├── components/
+│   ├── auth/                # Auth UI (layout, inputs, guards, etc.)
+│   ├── dashboard/           # Dashboard UI (sidebar, header, profile, etc.)
+│   ├── applications/        # Application form, list, badges
+│   ├── companies/           # Company cards, filters, detail panel
+│   └── recruiter/           # Recruiter-specific components
+```
 
-# Environment Variables
+## Authentication Flow
 
-| Variable | Purpose | Required |
-|----------|---------|----------|
-| `VITE_API_URL` | FastAPI backend base URL | No (default `http://localhost:8000`) |
+### Session Strategy
+- Backend issues JWT `access_token` + `refresh_token` as HTTP-only cookies
+- Frontend also stores tokens in `sessionStorage` and sends `Authorization: Bearer` header
+- On 401, frontend interceptor attempts refresh via POST `/auth/refresh` with body token
+- Backend `/auth/me` auto-refreshes via cookie if access token expired
 
-Firebase config is hardcoded in `src/lib/firebase.js` (project: verifai111). No env vars for Firebase keys.
+### Page Refresh (Session Restore)
+1. `AuthProvider` mounts → checks `hasStoredSession()` (sessionStorage)
+2. Calls `GET /auth/me` with Bearer header
+3. If access token valid → user data returned → session restored
+4. If expired → backend auto-refreshes via cookie → returns new tokens + user data
+5. If cookie missing → frontend interceptor refreshes via body token → retries `/auth/me`
+6. All fail → `clearTokens()` → user sees login
 
-# Authentication Flow
-
-## Firebase + Custom JWT Dual Layer
-
-1. **Firebase Auth** handles identity: `createUserWithEmailAndPassword`, `signInWithEmailAndPassword`, `sendPasswordResetEmail`, `sendEmailVerification`
-2. **Custom backend** validates Firebase ID token, issues JWT `access_token` + `refresh_token` + `user` object
-
-## Registration (Student/Recruiter)
-
-1. `createUserWithEmailAndPassword(auth, email, password)` → Firebase creates user
-2. `sendEmailVerification(user)` triggered
-3. `getIdToken(true)` → Firebase ID token
-4. POST `/auth/{role}/register` with `{ firebase_token, ...profileFields }`
-5. Backend returns `{ access_token, refresh_token, user }` → stored in localStorage
-6. Navigate to `/verify-email`
-
-## Login
-
-1. `signInWithEmailAndPassword(auth, email, password)` → Firebase user
-2. `getIdToken()` → Firebase ID token
+### Login
+1. `signInWithEmailAndPassword` (Firebase)
+2. Get Firebase ID token
 3. POST `/auth/login` with `{ firebase_token }`
-4. Backend returns `{ access_token, refresh_token, user }` → stored in localStorage
+4. Backend returns `{ access_token, refresh_token, user }` → stored in sessionStorage
 5. Navigate to `/{role}/dashboard`
 
-## Token Refresh
+### Register
+1. `createUserWithEmailAndPassword` (Firebase)
+2. `sendEmailVerification`
+3. POST `/auth/{role}/register` with `{ firebase_token, ...profileFields }`
+4. Backend returns tokens + user → stored in sessionStorage
+5. Navigate to `/verify-email`
 
-1. 401 response intercepted in `api.js` fetch wrapper
-2. POST `/auth/refresh` with `{ refresh_token }`
-3. On success: overwrite stored tokens, retry original request
-4. On failure: clear localStorage, redirect to `/session-expired`
+### Logout
+1. POST `/auth/logout` with refresh token
+2. Clear sessionStorage + in-memory tokens
+3. Firebase sign-out
+4. Dispatch `LOGOUT` → redirects to login
 
-## Storage Keys (localStorage)
+## API Client (`src/lib/api.js`)
 
-| Key | Value |
-|-----|-------|
-| `{role}_access_token` | JWT access token |
-| `{role}_refresh_token` | JWT refresh token |
-| `user_role` | `"student"` or `"recruiter"` |
+- `api.get/post/put/patch/delete/delete` — wrapper around `fetch()` with auth headers
+- `authApi.*` — auth-specific endpoints (me, login, register, refresh, logout)
+- Interceptor: on 401 → `attemptTokenRefresh()` → retry request
+- `silentRefresh()` — direct refresh call (bypasses interceptor)
+- All fetch calls include `credentials: 'include'` for cookie support
 
-## Auth State (`AuthContext`)
+## Route Guards (`src/components/auth/RouteGuards.jsx`)
 
-```
-{ user, firebaseUser, role, isLoading, isAuthenticated, error }
-```
+- `RequireAuth` — waits for `isLoading`, redirects to login if not authenticated
+- `RequireRole({ role })` — same + checks role match, redirects to `/forbidden`
 
-Provided via `useAuth()` hook with: `login`, `register`, `logout`, `clearError`.
+## Key Environment
 
-# API Contracts
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `VITE_API_URL` | `http://localhost:8000` | Backend URL |
 
-## Base
-```
-BASE_URL = http://localhost:8000
-```
+## Coding Conventions
 
-All auth requests send `Authorization: Bearer {access_token}` header (except login/register/refresh/health).
-
-| Method | Route | Auth | Request Body | Response |
-|--------|-------|------|-------------|----------|
-| POST | `/auth/student/register` | Firebase token in body | `{ firebase_token, full_name, phone, college_name, branch, graduation_year, skills }` | `{ data: { access_token, refresh_token, user } }` |
-| POST | `/auth/recruiter/register` | Firebase token in body | `{ firebase_token, company_name, recruiter_name, phone, company_website?, company_logo: null, designation }` | `{ data: { access_token, refresh_token, user } }` |
-| POST | `/auth/login` | Firebase token in body | `{ firebase_token }` | `{ data: { access_token, refresh_token, user } }` |
-| POST | `/auth/refresh` | None | `{ refresh_token }` | `{ data: { access_token, refresh_token } }` |
-| POST | `/auth/logout` | Bearer token | `{}` | - |
-| GET | `/health` | None | - | - |
-
-# Database Schema
-
-No frontend models — all schema lives in FastAPI backend. Validation implies:
-
-### Student Profile (registration payload)
-`{ firebase_token, full_name, phone, college_name, branch, graduation_year: number, skills }`
-
-### Recruiter Profile (registration payload)
-`{ firebase_token, company_name, recruiter_name, phone, company_website?, company_logo: null, designation }`
-
-### Login response `user` object
-Shape unknown (opaque backend object). Returned inside `{ data: { access_token, refresh_token, user } }`.
-
-# Frontend State Management
-
-- **Auth:** `AuthContext` + `useReducer` — single reducer, 6 actions (`SET_FIREBASE_USER`, `SET_USER`, `SET_LOADING`, `SET_ERROR`, `LOGOUT`, `CLEAR_ERROR`)
-- **Forms:** Local `useState` for loading/error/success; `react-hook-form` + `zodResolver` for field state
-- **Persistence:** localStorage for tokens/role; Firebase `onAuthStateChanged` rehydrates on reload
-- **API Layer:** Custom fetch wrapper in `src/lib/api.js` with auto-refresh on 401, method helpers (`get/post/put/patch/delete`), separate `authApi` object for auth endpoints
-
-# Coding Rules
-
-- **Naming:** PascalCase components + files, camelCase utilities/functions, barrel `index.js` exports
-- **Exports:** `export default` for components, `export` named for utilities
-- **Error handling:** try-catch in all async ops; categorize Firebase errors by code (e.g. `auth/email-already-in-use`); set error via `auth/setError` or local state
-- **Validation:** All forms use Zod schemas in `src/lib/validators.js` + `@hookform/resolvers/zod`. Password: 8-128 chars, 1 upper, 1 lower, 1 number
-- **Imports:** Use `@/` path alias for `src/` imports
-- **Lazy loading:** Every page component must be `React.lazy(() => import())`
-- **Security:** Never log tokens; never move Firebase keys to env (hardcoded by design); Firebase `onAuthStateChanged` must handle null user (trigger logout)
-- **Accessibility:** `aria-invalid`, `aria-describedby`, `role="alert"` on errors
-
-# Current Features
-
-## Implemented
-- Student signup/login, Recruiter signup/login
-- Forgot password, Reset password (via Firebase oobCode)
-- Email verification polling (3s interval, manual check + resend)
-- Session expired page, auto token refresh on 401
-- Dark mode (`.dark` class toggle in Tailwind v4 `@theme`)
-- Responsive two-column auth layout (single column mobile)
-- Form validation (Zod + react-hook-form)
-- Framer Motion page transitions + auth card animations
-
-## In Progress
-- None
-
-## Planned
-- Student dashboard (`/student/dashboard`), Recruiter dashboard (`/recruiter/dashboard`)
-- Job search, profiles, AI matching, credential verification, analytics (all backend-dependent)
-
-# Known Issues
-
-- Google/LinkedIn social login buttons are placeholders ("coming soon")
-- `README.md` is default Vite template (not customized)
-- No loading skeleton components
-- Dashboard pages referenced in redirects do not exist (will 404)
-
-# Agent Notes
-
-- **Backend is a separate repo.** All FastAPI endpoints assumed, not verified. If backend changes response contracts, update `src/lib/api.js` and this file.
-- **Firebase config is hardcoded.** Never move to env vars — Firebase SDK config is public by design.
-- **Dual token strategy:** Firebase token used ONLY for initial auth with backend. All subsequent API calls use backend JWT. Never mix.
-- **Role is embedded in localStorage key** (`student_access_token` vs `recruiter_access_token`). API helpers extract role from `localStorage.getItem('user_role')`.
-- **Refresh loop protection:** `api.js` uses `isRefreshing` flag to prevent concurrent refresh calls. Do not remove.
-- **No TypeScript.** All files are `.jsx`. Do not add TS without explicit request.
-- **Tailwind v4** uses `@import "tailwindcss"` (not `@tailwind` directives) and `@theme` for custom design tokens. No `tailwind.config.js`.
-- **React 19** — `forwardRef` still works, no breaking changes for current patterns.
-- **Vite 8** — config is minimal, no proxy configured. API calls go directly to `localhost:8000` (CORS handled by backend).
+- PascalCase components, camelCase utilities
+- `export default` for components, named exports for utilities
+- Zod validation on all forms
+- Lazy-load every page via `React.lazy()`
+- Never log tokens
+- No TypeScript (all `.jsx`)
+- Tailwind v4: `@import "tailwindcss"` + `@theme` (no tailwind.config.js)

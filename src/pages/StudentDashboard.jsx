@@ -13,6 +13,8 @@ import ProfileForm from '../components/dashboard/ProfileForm';
 import LogoutModal from '../components/dashboard/LogoutModal';
 import { DashboardSkeleton } from '../components/dashboard/Skeletons';
 import ErrorBoundary from '../components/common/ErrorBoundary';
+import StudentCompanies from './StudentCompanies';
+import SubmissionsList from '../components/applications/SubmissionsList';
 
 export default function StudentDashboard() {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
@@ -39,6 +41,7 @@ export default function StudentDashboard() {
   const [logoutModalOpen, setLogoutModalOpen] = useState(false);
   const [toast, setToast] = useState(null);
   const [formError, setFormError] = useState(null);
+  const [submissionsRefreshKey, setSubmissionsRefreshKey] = useState(0);
 
   useEffect(() => {
     localStorage.setItem('sidebar_collapsed', sidebarCollapsed);
@@ -89,6 +92,32 @@ export default function StudentDashboard() {
 
   const renderContent = () => {
     switch (activeView) {
+      case 'companies':
+        return (
+          <motion.div
+            key="companies"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <StudentCompanies onApplied={() => setSubmissionsRefreshKey((k) => k + 1)} />
+          </motion.div>
+        );
+
+      case 'submissions':
+        return (
+          <motion.div
+            key="submissions"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <SubmissionsList refreshKey={submissionsRefreshKey} />
+          </motion.div>
+        );
+
       case 'dashboard':
         return (
           <motion.div

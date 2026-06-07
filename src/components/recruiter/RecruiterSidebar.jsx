@@ -2,29 +2,22 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard,
-  User,
+  Inbox,
   Settings,
-  FileText,
-  Activity,
-  HelpCircle,
   ChevronLeft,
   ChevronRight,
   Zap,
   Moon,
   LogOut,
+  User,
+  HelpCircle,
   Building2,
-  Send,
 } from 'lucide-react';
 
 const navItems = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'companies', label: 'Companies', icon: Building2 },
-  { id: 'submissions', label: 'My Submissions', icon: Send },
-  { id: 'profile', label: 'Profile', icon: User },
+  { id: 'inbox', label: 'Inbox', icon: Inbox },
+  { id: 'applications', label: 'Applications', icon: LayoutDashboard },
   { id: 'settings', label: 'Settings', icon: Settings },
-  { id: 'resume', label: 'Resume', icon: FileText },
-  { id: 'activity', label: 'Activity', icon: Activity },
-  { id: 'help', label: 'Help', icon: HelpCircle },
 ];
 
 function getInitials(name) {
@@ -37,7 +30,7 @@ function getInitials(name) {
     .slice(0, 2);
 }
 
-export default function Sidebar({
+export default function RecruiterSidebar({
   collapsed,
   onToggleCollapse,
   mobileOpen,
@@ -83,7 +76,6 @@ export default function Sidebar({
         collapsed ? 'w-16' : 'w-60'
       }`}
     >
-      {/* Logo */}
       <div className="flex h-16 items-center gap-3 px-4 border-b border-dark-border flex-shrink-0">
         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary-500 to-purple-600 shadow-lg shadow-primary-500/20 flex-shrink-0">
           <Zap className="h-4 w-4 text-white" />
@@ -103,7 +95,6 @@ export default function Sidebar({
         </AnimatePresence>
       </div>
 
-      {/* Navigation */}
       <nav className="flex-1 overflow-y-auto p-3 space-y-1">
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -155,9 +146,7 @@ export default function Sidebar({
         })}
       </nav>
 
-      {/* Bottom section: collapse toggle + profile */}
       <div className="border-t border-dark-border flex-shrink-0">
-        {/* Collapse toggle */}
         <div className={`px-3 py-2 ${collapsed ? 'flex justify-center' : ''}`}>
           <button
             onClick={onToggleCollapse}
@@ -185,7 +174,6 @@ export default function Sidebar({
           </button>
         </div>
 
-        {/* Profile section */}
         <div ref={profileRef} className="relative">
           <button
             onClick={() => setProfileMenuOpen(!profileMenuOpen)}
@@ -194,7 +182,7 @@ export default function Sidebar({
             }`}
           >
             <div className="h-9 w-9 rounded-full bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center text-sm font-bold text-white shadow-lg shadow-primary-500/20 flex-shrink-0">
-              {getInitials(user?.full_name || user?.email)}
+              {getInitials(user?.recruiter_name || user?.company_name || user?.email)}
             </div>
             <AnimatePresence>
               {!collapsed && (
@@ -206,7 +194,7 @@ export default function Sidebar({
                   className="flex-1 min-w-0 text-left"
                 >
                   <p className="text-sm font-medium text-dark-foreground truncate">
-                    {user?.full_name || user?.email || 'Student'}
+                    {user?.recruiter_name || user?.company_name || 'Recruiter'}
                   </p>
                   <p className="text-xs text-dark-muted truncate">
                     {user?.email || ''}
@@ -216,7 +204,6 @@ export default function Sidebar({
             </AnimatePresence>
           </button>
 
-          {/* Profile dropdown menu */}
           <AnimatePresence>
             {profileMenuOpen && (
               <motion.div
@@ -229,15 +216,14 @@ export default function Sidebar({
                 }`}
                 style={{ transformOrigin: 'bottom left' }}
               >
-                {/* User info header */}
                 <div className="p-3 border-b border-dark-border">
                   <div className="flex items-center gap-3">
                     <div className="h-9 w-9 rounded-full bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center text-sm font-bold text-white flex-shrink-0">
-                      {getInitials(user?.full_name || user?.email)}
+                      {getInitials(user?.recruiter_name || user?.company_name || user?.email)}
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-medium text-dark-foreground truncate">
-                        {user?.full_name || user?.email || 'Student'}
+                        {user?.recruiter_name || user?.company_name || 'Recruiter'}
                       </p>
                       <p className="text-xs text-dark-muted truncate">
                         {user?.email || ''}
@@ -246,27 +232,20 @@ export default function Sidebar({
                   </div>
                 </div>
 
-                {/* Menu items */}
                 <div className="p-1.5">
                   <button
-                    onClick={() => {
-                      onNavigate('profile');
-                      setProfileMenuOpen(false);
-                    }}
+                    onClick={() => setProfileMenuOpen(false)}
                     className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-dark-foreground hover:bg-dark-surface-hover transition-all duration-150"
                   >
                     <User className="h-4 w-4 flex-shrink-0" />
                     My Profile
                   </button>
                   <button
-                    onClick={() => {
-                      onNavigate('settings');
-                      setProfileMenuOpen(false);
-                    }}
+                    onClick={() => setProfileMenuOpen(false)}
                     className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-dark-foreground hover:bg-dark-surface-hover transition-all duration-150"
                   >
-                    <Settings className="h-4 w-4 flex-shrink-0" />
-                    Account Settings
+                    <Building2 className="h-4 w-4 flex-shrink-0" />
+                    Company Settings
                   </button>
                   <button
                     onClick={() => {
@@ -280,10 +259,7 @@ export default function Sidebar({
                     Theme Switch
                   </button>
                   <button
-                    onClick={() => {
-                      onNavigate('help');
-                      setProfileMenuOpen(false);
-                    }}
+                    onClick={() => setProfileMenuOpen(false)}
                     className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-dark-foreground hover:bg-dark-surface-hover transition-all duration-150"
                   >
                     <HelpCircle className="h-4 w-4 flex-shrink-0" />
@@ -311,7 +287,6 @@ export default function Sidebar({
 
   return (
     <>
-      {/* Mobile overlay */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
@@ -325,7 +300,6 @@ export default function Sidebar({
         )}
       </AnimatePresence>
 
-      {/* Mobile drawer */}
       <motion.aside
         initial={false}
         animate={{
@@ -337,12 +311,9 @@ export default function Sidebar({
         {sidebarContent}
       </motion.aside>
 
-      {/* Desktop sidebar */}
       <aside className="hidden lg:flex h-dvh bg-dark-surface border-r border-dark-border flex-shrink-0">
         {sidebarContent}
       </aside>
     </>
   );
 }
-
-

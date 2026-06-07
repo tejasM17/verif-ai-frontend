@@ -86,7 +86,12 @@ export function clearTokens() {
 
 export function hasStoredSession() {
   try {
-    return !!(sessionStorage.getItem('refresh_token') && sessionStorage.getItem('user') && sessionStorage.getItem('role'));
+    return !!(
+      sessionStorage.getItem('access_token') &&
+      sessionStorage.getItem('refresh_token') &&
+      sessionStorage.getItem('user') &&
+      sessionStorage.getItem('role')
+    );
   } catch {
     return false;
   }
@@ -135,6 +140,7 @@ async function attemptTokenRefresh() {
       const response = await fetch(`${BASE_URL}/auth/refresh`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ refresh_token: token }),
       });
 
@@ -204,7 +210,7 @@ async function request(endpoint, options = {}) {
     headers['Content-Type'] = 'application/json';
   }
 
-  let config = { ...options, headers };
+  let config = { ...options, headers, credentials: 'include' };
 
   if (config.body && typeof config.body === 'object' && !isFormData) {
     config.body = JSON.stringify(config.body);
@@ -297,6 +303,7 @@ export async function silentRefresh(refreshToken) {
   const response = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify({ refresh_token: refreshToken }),
   });
   if (!response.ok) {

@@ -178,11 +178,26 @@ export function AuthProvider({ children }) {
         // Step A: Call /auth/me with the stored access token.
         // If the token is expired, the API interceptor will automatically
         // attempt a token refresh and retry the /auth/me call.
+        // Backend /auth/me returns user object flat in data: { id, email, role, ... }
+        // It may also include new tokens (access_token, refresh_token) if auto-refresh occurred.
         let meData = null;
         try {
           const meRes = await authApi.me();
           const body = meRes.data || meRes;
-          meData = { user: body.user, role: body.user?.role };
+          // Backend returns user fields flat (not nested under .user)
+          const user = {
+            id: body.id,
+            email: body.email,
+            full_name: body.full_name,
+            role: body.role,
+          };
+          const role = body.role;
+          // If /auth/me auto-refreshed tokens, capture them
+          if (body.access_token && body.refresh_token) {
+            setTokens(body.access_token, body.refresh_token);
+            log('info', 'Auth startup: /auth/me returned refreshed tokens');
+          }
+          meData = { user, role };
           log('info', 'Auth startup: /auth/me success', { role: meData.role });
         } catch (meErr) {
           log('warn', 'Auth startup: /auth/me failed', {
@@ -223,14 +238,22 @@ export function AuthProvider({ children }) {
             try {
               const meRes2 = await authApi.me();
               const body2 = meRes2.data || meRes2;
-              const user = body2.user;
-              const role = user?.role;
-              if (user && role) {
-                setStoredUser(user);
-                setStoredRole(role);
+              const user2 = {
+                id: body2.id,
+                email: body2.email,
+                full_name: body2.full_name,
+                role: body2.role,
+              };
+              const role2 = body2.role;
+              if (body2.access_token && body2.refresh_token) {
+                setTokens(body2.access_token, body2.refresh_token);
+              }
+              if (user2 && role2) {
+                setStoredUser(user2);
+                setStoredRole(role2);
                 if (!cancelled) {
-                  dispatch({ type: 'RESTORE_SESSION', payload: { user, role } });
-                  log('info', 'Auth startup: /auth/me success after refresh', { role });
+                  dispatch({ type: 'RESTORE_SESSION', payload: { user: user2, role: role2 } });
+                  log('info', 'Auth startup: /auth/me success after refresh', { role: role2 });
                 }
                 return;
               }

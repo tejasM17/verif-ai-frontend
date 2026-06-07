@@ -16,6 +16,7 @@ const ResetPassword = lazy(() => import('./pages/ResetPassword'));
 const SessionExpired = lazy(() => import('./pages/SessionExpired'));
 const Forbidden = lazy(() => import('./pages/Forbidden'));
 const StudentDashboard = lazy(() => import('./pages/StudentDashboard'));
+const StudentCompanies = lazy(() => import('./pages/StudentCompanies'));
 const RecruiterDashboard = lazy(() => import('./pages/RecruiterDashboard'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 
@@ -122,6 +123,23 @@ export default function App() {
                       </div>
                     }>
                       <StudentDashboard />
+                    </Suspense>
+                  </RequireRole>
+                </RequireAuth>
+              }
+            />
+
+            <Route
+              path="/student/companies"
+              element={
+                <RequireAuth>
+                  <RequireRole role="student">
+                    <Suspense fallback={
+                      <div className="flex min-h-dvh items-center justify-center bg-dark-background">
+                        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
+                      </div>
+                    }>
+                      <StudentCompanies />
                     </Suspense>
                   </RequireRole>
                 </RequireAuth>
