@@ -1,6 +1,14 @@
 import { createContext, useState, useEffect } from "react";
-import { getMe, login as apiLogin, signup as apiSignup } from "../api/auth";
+import {
+  getMe,
+  login as apiLogin,
+  signup as apiSignup,
+  googleLogin as apiGoogleLogin,
+  githubLogin as apiGithubLogin,
+} from "../api/auth";
 import { getToken, setToken, removeToken } from "../utils/token";
+import { signInWithGoogle } from "../services/googleAuth";
+import { signInWithGithub } from "../services/githubAuth";
 
 export const AuthContext = createContext(null);
 
@@ -33,13 +41,33 @@ export function AuthProvider({ children }) {
     return res.data;
   };
 
+  const googleLoginUser = async () => {
+    const { idToken } = await signInWithGoogle();
+    const res = await apiGoogleLogin(idToken);
+    setToken(res.data.idToken);
+    const me = await getMe();
+    setUser(me.data);
+    return me.data;
+  };
+
+  const githubLoginUser = async () => {
+    const { idToken } = await signInWithGithub();
+    const res = await apiGithubLogin(idToken);
+    setToken(res.data.idToken);
+    const me = await getMe();
+    setUser(me.data);
+    return me.data;
+  };
+
   const logout = () => {
     removeToken();
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, loginUser, signupUser, logout }}>
+    <AuthContext.Provider
+      value={{ user, loading, loginUser, signupUser, googleLoginUser, githubLoginUser, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );

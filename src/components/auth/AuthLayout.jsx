@@ -11,7 +11,7 @@ export default function AuthLayout({ children, title, subtitle, altText, altLink
           className="absolute inset-0 w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/20" />
-        <div className="relative flex flex-col justify-end px-12 pb-16 text-white">
+        <div className="relative flex flex-col justify-center px-12 text-white">
           <div className="animate-fade-in">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-xl bg-yellow-400 flex items-center justify-center">

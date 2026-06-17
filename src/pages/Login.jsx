@@ -11,7 +11,9 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const { loginUser } = useAuth();
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [githubLoading, setGithubLoading] = useState(false);
+  const { loginUser, googleLoginUser, githubLoginUser } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -29,6 +31,50 @@ export default function Login() {
       setError(err.response?.data?.detail || "Invalid email or password");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGithub = async () => {
+    setError("");
+    setGithubLoading(true);
+    try {
+      await githubLoginUser();
+      navigate("/dashboard");
+    } catch (err) {
+      if (err.code === "auth/popup-closed-by-user") return;
+      if (err.code === "auth/popup-blocked") {
+        setError("Popup blocked. Please allow popups for this site.");
+        return;
+      }
+      if (err.code === "auth/account-exists-with-different-credential") {
+        setError("An account with this email already exists. Sign in with email and password.");
+        return;
+      }
+      setError(err.response?.data?.detail || "GitHub sign-in failed");
+    } finally {
+      setGithubLoading(false);
+    }
+  };
+
+  const handleGoogle = async () => {
+    setError("");
+    setGoogleLoading(true);
+    try {
+      await googleLoginUser();
+      navigate("/dashboard");
+    } catch (err) {
+      if (err.code === "auth/popup-closed-by-user") return;
+      if (err.code === "auth/popup-blocked") {
+        setError("Popup blocked. Please allow popups for this site.");
+        return;
+      }
+      if (err.code === "auth/account-exists-with-different-credential") {
+        setError("An account with this email already exists. Sign in with email and password.");
+        return;
+      }
+      setError(err.response?.data?.detail || "Google sign-in failed");
+    } finally {
+      setGoogleLoading(false);
     }
   };
 
@@ -98,8 +144,8 @@ export default function Login() {
       </div>
 
       <div className="space-y-2">
-        <SocialButton provider="google" onClick={() => {}} />
-        <SocialButton provider="apple" onClick={() => {}} />
+        <SocialButton provider="google" onClick={handleGoogle} loading={googleLoading} />
+        <SocialButton provider="github" onClick={handleGithub} loading={githubLoading} />
       </div>
     </AuthLayout>
   );

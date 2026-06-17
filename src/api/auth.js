@@ -19,4 +19,10 @@ export const signup = (email, password) =>
 export const login = (email, password) =>
   api.post("/login", { email, password });
 
+export const googleLogin = (idToken) =>
+  api.post("/google", { id_token: idToken });
+
+export const githubLogin = (idToken) =>
+  api.post("/github", { id_token: idToken });
+
 export const getMe = () => api.get("/me");
