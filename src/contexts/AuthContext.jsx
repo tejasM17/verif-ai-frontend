@@ -36,8 +36,8 @@ export function AuthProvider({ children }) {
     return me.data;
   };
 
-  const signupUser = async (email, password) => {
-    const res = await apiSignup(email, password);
+  const signupUser = async (email, password, role) => {
+    const res = await apiSignup(email, password, role);
     return res.data;
   };
 
@@ -47,7 +47,7 @@ export function AuthProvider({ children }) {
     setToken(res.data.idToken);
     const me = await getMe();
     setUser(me.data);
-    return me.data;
+    return { ...me.data, role: me.data.role || "student" };
   };
 
   const githubLoginUser = async () => {
@@ -56,7 +56,7 @@ export function AuthProvider({ children }) {
     setToken(res.data.idToken);
     const me = await getMe();
     setUser(me.data);
-    return me.data;
+    return { ...me.data, role: me.data.role || "student" };
   };
 
   const logout = () => {
@@ -64,9 +64,11 @@ export function AuthProvider({ children }) {
     setUser(null);
   };
 
+  const userRole = user?.role || "student";
+
   return (
     <AuthContext.Provider
-      value={{ user, loading, loginUser, signupUser, googleLoginUser, githubLoginUser, logout }}
+      value={{ user, loading, userRole, loginUser, signupUser, googleLoginUser, githubLoginUser, logout }}
     >
       {children}
     </AuthContext.Provider>

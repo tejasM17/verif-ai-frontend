@@ -25,8 +25,8 @@ export default function Login() {
     }
     setLoading(true);
     try {
-      await loginUser(email, password);
-      navigate("/dashboard");
+      const userData = await loginUser(email, password);
+      navigate(userData.role === "recruiter" ? "/recruiter" : "/student");
     } catch (err) {
       setError(err.response?.data?.detail || "Invalid email or password");
     } finally {
@@ -38,8 +38,8 @@ export default function Login() {
     setError("");
     setGithubLoading(true);
     try {
-      await githubLoginUser();
-      navigate("/dashboard");
+      const userData = await githubLoginUser();
+      navigate(userData.role === "recruiter" ? "/recruiter" : "/student");
     } catch (err) {
       if (err.code === "auth/popup-closed-by-user") return;
       if (err.code === "auth/popup-blocked") {
@@ -60,8 +60,8 @@ export default function Login() {
     setError("");
     setGoogleLoading(true);
     try {
-      await googleLoginUser();
-      navigate("/dashboard");
+      const userData = await googleLoginUser();
+      navigate(userData.role === "recruiter" ? "/recruiter" : "/student");
     } catch (err) {
       if (err.code === "auth/popup-closed-by-user") return;
       if (err.code === "auth/popup-blocked") {
@@ -86,14 +86,14 @@ export default function Login() {
       altLink="/signup"
       altLabel="Sign up"
     >
-      <div className="text-center mb-5">
-        <h2 className="text-2xl font-bold text-white">Sign In</h2>
-        <p className="text-gray-400 text-sm mt-1.5">Welcome back! Please enter your details.</p>
+      <div className="text-center mb-4">
+        <h2 className="text-lg font-bold text-white">Sign In</h2>
+        <p className="text-gray-400 text-xs mt-0.5">Welcome back! Please enter your details.</p>
       </div>
 
       {error && (
-        <div className="mb-4 p-3 rounded-xl bg-red-950/50 border border-red-800 text-red-400 text-sm flex items-center gap-2 animate-shake">
-          <svg className="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+        <div className="mb-3 p-2 rounded-lg bg-red-950/50 border border-red-800 text-red-400 text-xs flex items-center gap-2 animate-shake">
+          <svg className="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clipRule="evenodd" />
           </svg>
           {error}
@@ -115,18 +115,18 @@ export default function Login() {
           onChange={(e) => setPassword(e.target.value)}
           autoComplete="current-password"
         />
-        <div className="flex items-center justify-between mb-5">
-          <label className="flex items-center gap-2 text-sm text-gray-400 cursor-pointer">
+        <div className="flex items-center justify-between mb-3">
+          <label className="flex items-center gap-2 text-xs text-gray-400 cursor-pointer">
             <input
               type="checkbox"
-              className="w-4 h-4 rounded border-gray-700 bg-gray-900 text-yellow-400 focus:ring-yellow-500/30"
+              className="w-3.5 h-3.5 rounded border-gray-700 bg-gray-900 text-yellow-400 focus:ring-yellow-500/30"
             />
             Remember me
           </label>
           <button
             type="button"
             onClick={() => navigate("/forgot-password")}
-            className="text-sm font-medium text-yellow-400 hover:text-yellow-300 transition-colors"
+            className="text-xs font-medium text-yellow-400 hover:text-yellow-300 transition-colors"
           >
             Forgot password?
           </button>
@@ -134,12 +134,12 @@ export default function Login() {
         <AuthButton loading={loading}>Sign In</AuthButton>
       </form>
 
-      <div className="relative my-5">
+      <div className="relative my-4">
         <div className="absolute inset-0 flex items-center">
           <div className="w-full border-t border-gray-800" />
         </div>
         <div className="relative flex justify-center">
-          <span className="bg-gray-950 px-3 text-xs text-gray-500">or continue with</span>
+          <span className="bg-gray-950 px-2 text-[10px] text-gray-500">or continue with</span>
         </div>
       </div>
 

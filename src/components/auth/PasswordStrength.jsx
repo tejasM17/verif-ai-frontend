@@ -24,16 +24,16 @@ export default function PasswordStrength({ password }) {
   const level = levels[score];
 
   return (
-    <div className="mb-5 -mt-3 animate-fade-in">
-      <div className="flex gap-1 mb-1">
+    <div className="mb-3 -mt-2 animate-fade-in">
+      <div className="flex gap-0.5 mb-0.5">
         {levels.map((_, i) => (
           <div
             key={i}
-            className={`h-1 flex-1 rounded-full transition-all duration-300 ${i <= score ? level.color : "bg-gray-800"}`}
+            className={`h-0.5 flex-1 rounded-full transition-all duration-300 ${i <= score ? level.color : "bg-gray-800"}`}
           />
         ))}
       </div>
-      <p className={`text-xs font-medium ${level.textColor}`}>{level.label}</p>
+      <p className={`text-[10px] font-medium ${level.textColor}`}>{level.label}</p>
     </div>
   );
 }
