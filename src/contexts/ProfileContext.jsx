@@ -1,23 +1,29 @@
-import { createContext, useState, useEffect, useContext } from "react";
-import { getProfile } from "../api/auth";
+import { createContext, useState, useEffect, useContext, useCallback } from "react";
+import { getProfile, updateProfile as updateProfileApi } from "../api/auth";
 
 const ProfileContext = createContext(null);
 
 export function ProfileProvider({ children }) {
   const [profile, setProfile] = useState(null);
 
-  useEffect(() => {
+  const refreshProfile = useCallback(() => {
     getProfile()
       .then((res) => setProfile(res.data))
       .catch(() => {});
   }, []);
 
-  const updateProfile = (updates) => {
-    setProfile((prev) => (prev ? { ...prev, ...updates } : prev));
+  useEffect(() => {
+    refreshProfile();
+  }, [refreshProfile]);
+
+  const updateProfile = async (updates) => {
+    const res = await updateProfileApi(updates);
+    setProfile(res.data);
+    return res.data;
   };
 
   return (
-    <ProfileContext.Provider value={{ profile, updateProfile }}>
+    <ProfileContext.Provider value={{ profile, updateProfile, refreshProfile }}>
       {children}
     </ProfileContext.Provider>
   );
