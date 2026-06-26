@@ -1,11 +1,13 @@
 import axios from "axios";
 import { getToken } from "../utils/token";
 
+const API_BASE = import.meta.env.VITE_API_URL || "https://verifai-backend-jl89.onrender.com";
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000",
+  baseURL: API_BASE,
 });
 
-export const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000";
+export { API_BASE };
 
 api.interceptors.request.use((config) => {
   const token = getToken();
