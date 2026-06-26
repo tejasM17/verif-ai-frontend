@@ -1,38 +1,79 @@
+import { useState, useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import { useAuth } from "../hooks/useAuth";
 import { ProfileProvider } from "../contexts/ProfileContext";
+import { SearchProvider } from "../contexts/CompanySearchContext";
+import { PaletteProvider, usePalette } from "../contexts/PaletteContext";
+import CommandPalette from "./CommandPalette";
+import PaletteTrigger from "./PaletteTrigger";
+
+// Command palette is only for the student role — recruiters don't get the
+// trigger, the Ctrl/Cmd+K shortcut, or the modal.
+function PaletteHotkey({ enabled }) {
+  const { togglePalette } = usePalette();
+  useEffect(() => {
+    if (!enabled) return undefined;
+    const onKey = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        togglePalette();
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [togglePalette, enabled]);
+  return null;
+}
+
+function LayoutInner() {
+  const { userRole } = useAuth();
+  const [collapsed, setCollapsed] = useState(false);
+  const { open, closePalette, paletteEnabled } = usePalette();
+
+  return (
+    <div className="app-shell flex">
+      <Sidebar
+        role={userRole}
+        collapsed={collapsed}
+        onToggle={() => setCollapsed((c) => !c)}
+      />
+      <main
+        className={`flex-1 ${collapsed ? "ml-16" : "ml-60"} transition-[margin] duration-300 ease-in-out min-h-screen`}
+      >
+        <div className="flex items-center justify-center px-4 sm:px-8 h-20 border-b border-[var(--border-soft)] bg-[var(--surface-1)] sticky top-0 z-30">
+          {paletteEnabled ? (
+            <PaletteTrigger />
+          ) : (
+            <h1 className="text-[15px] font-semibold text-white tracking-tight">
+              Recruiter Dashboard
+            </h1>
+          )}
+        </div>
+
+        <div className="p-4 sm:p-6 lg:p-10">
+          <Outlet />
+        </div>
+      </main>
+
+      {paletteEnabled && <CommandPalette open={open} onClose={closePalette} />}
+    </div>
+  );
+}
 
 export default function Layout() {
   const { userRole } = useAuth();
+  // Only students get the command palette features.
+  const paletteEnabled = userRole === "student";
 
   return (
     <ProfileProvider>
-      <div className="min-h-screen bg-[#0f0f0f]">
-        <Sidebar role={userRole} />
-        <main className="ml-60">
-          {/* Header */}
-          <header className="h-16 flex items-center justify-center px-8 border-b border-gray-800/50">
-            <div className="relative w-full max-w-xl">
-              <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-              </svg>
-              <input
-                type="text"
-                placeholder="Search companies, roles..."
-                className="w-full h-10 pl-10 pr-4 bg-[#1a1a1a] border border-gray-700/50 rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400/50 focus:ring-1 focus:ring-yellow-400/20 transition-all duration-200"
-              />
-            </div>
-          </header>
-
-          {/* Content */}
-          <div className="p-6">
-            <div className="bg-[#1a1a1a] rounded-2xl border border-gray-800/50 min-h-[calc(100vh-5.5rem)]">
-              <Outlet />
-            </div>
-          </div>
-        </main>
-      </div>
+      <SearchProvider>
+        <PaletteProvider paletteEnabled={paletteEnabled}>
+          <PaletteHotkey enabled={paletteEnabled} />
+          <LayoutInner />
+        </PaletteProvider>
+      </SearchProvider>
     </ProfileProvider>
   );
 }

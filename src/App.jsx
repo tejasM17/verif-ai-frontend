@@ -10,6 +10,12 @@ import StudentDashboard from "./pages/StudentDashboard";
 import RecruiterDashboard from "./pages/RecruiterDashboard";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
+import CompanyDetail from "./pages/CompanyDetail";
+import StudentAppliedCompanies from "./pages/StudentAppliedCompanies";
+import CompanyJobs from "./pages/CompanyJobs";
+import ApplicationForm from "./pages/ApplicationForm";
+import ApplicationDetail from "./pages/ApplicationDetail";
+import JobEditor from "./pages/JobEditor";
 
 export default function App() {
   return (
@@ -32,6 +38,11 @@ export default function App() {
             <Route index element={<StudentDashboard />} />
             <Route path="profile" element={<Profile />} />
             <Route path="settings" element={<Settings />} />
+            <Route path="company/:uid" element={<CompanyDetail />} />
+            <Route path="applied" element={<StudentAppliedCompanies />} />
+            <Route path="company/:uid/jobs" element={<CompanyJobs />} />
+            <Route path="apply/:uid" element={<ApplicationForm />} />
+            <Route path="application/:appId" element={<ApplicationDetail />} />
           </Route>
 
           {/* Recruiter Routes */}
@@ -46,6 +57,9 @@ export default function App() {
             <Route index element={<RecruiterDashboard />} />
             <Route path="profile" element={<Profile />} />
             <Route path="settings" element={<Settings />} />
+            <Route path="company/:uid" element={<CompanyDetail />} />
+            <Route path="jobs/new" element={<JobEditor />} />
+            <Route path="jobs/:uid/edit" element={<JobEditor />} />
           </Route>
 
           {/* Dashboard redirect based on role */}

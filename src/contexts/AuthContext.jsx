@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import { createContext, useState, useEffect } from "react";
 import {
   getMe,
@@ -5,6 +6,7 @@ import {
   signup as apiSignup,
   googleLogin as apiGoogleLogin,
   githubLogin as apiGithubLogin,
+  updateRole as apiUpdateRole,
 } from "../api/auth";
 import { getToken, setToken, removeToken } from "../utils/token";
 import { signInWithGoogle } from "../services/googleAuth";
@@ -64,11 +66,21 @@ export function AuthProvider({ children }) {
     setUser(null);
   };
 
+  // Switch the current account's role. Used when a recruiter hits the
+  // dashboard with role=None (legacy signup) or wants to flip between
+  // student/recruiter without signing out.
+  const switchRole = async (role) => {
+    await apiUpdateRole(role);
+    const me = await getMe();
+    setUser(me.data);
+    return me.data;
+  };
+
   const userRole = user?.role || "student";
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, userRole, loginUser, signupUser, googleLoginUser, githubLoginUser, logout }}
+      value={{ user, loading, userRole, loginUser, signupUser, googleLoginUser, githubLoginUser, logout, switchRole }}
     >
       {children}
     </AuthContext.Provider>
